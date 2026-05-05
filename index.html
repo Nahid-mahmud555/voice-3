@@ -2,867 +2,1712 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>UNO Voice | Cognitive Intelligence Suite</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNO Voice — Cognitive Intelligence Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Cabinet+Grotesk:wght@300;400;500;700;800;900&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500&display=swap" rel="stylesheet">
 <style>
+/* ═══════════════════════════════════════
+   DESIGN TOKEN SYSTEM — "Deep Obsidian"
+   Dark: #07070d + warm gold + sage + rose
+   Light: parchment + ink + copper
+═══════════════════════════════════════ */
 :root {
-  --bg: #05050a;
-  --surface: #0d0d17;
-  --surface2: #12121f;
-  --surface3: #17172a;
-  --border: rgba(255,255,255,0.06);
-  --border-glow: rgba(120,100,255,0.25);
-  --text: #e8e8f0;
-  --text-muted: #6b6b8a;
-  --text-dim: #3a3a55;
-  --accent-violet: #7c6dff;
-  --accent-indigo: #5b4fff;
-  --accent-cyan: #00d4c8;
-  --accent-rose: #ff4d8d;
-  --accent-amber: #f59e0b;
-  --glow-violet: rgba(124,109,255,0.15);
-  --glow-cyan: rgba(0,212,200,0.1);
-  --radius: 20px;
-  --radius-sm: 12px;
-  --radius-pill: 100px;
+  --bg:        #07070d;
+  --bg2:       #0d0d16;
+  --s0:        rgba(255,255,255,0.024);
+  --s1:        rgba(255,255,255,0.038);
+  --s2:        rgba(255,255,255,0.056);
+  --s3:        rgba(255,255,255,0.075);
+  --b0:        rgba(255,255,255,0.062);
+  --b1:        rgba(212,175,80,0.26);
+  --b2:        rgba(122,158,142,0.22);
+  --b3:        rgba(201,107,114,0.22);
+  --tx:        #eeebdf;
+  --tx2:       #8a8778;
+  --tx3:       #42403a;
+  --gold:      #d4af50;
+  --gold2:     #a8882a;
+  --gold-a:    rgba(212,175,80,0.10);
+  --sage:      #7a9e8e;
+  --sage-a:    rgba(122,158,142,0.12);
+  --rose:      #c96b72;
+  --rose-a:    rgba(201,107,114,0.10);
+  --blue:      #5a8fcf;
+  --blue-a:    rgba(90,143,207,0.10);
+  --r:         18px;
+  --rs:        12px;
+  --pill:      999px;
+  --serif:     'Instrument Serif', Georgia, serif;
+  --grotesk:   'Cabinet Grotesk', sans-serif;
+  --body:      'Bricolage Grotesque', sans-serif;
+  --ease:      cubic-bezier(0.22,1,0.36,1);
+}
+body.light {
+  --bg:        #f2ede3;
+  --bg2:       #e9e4d8;
+  --s0:        rgba(0,0,0,0.022);
+  --s1:        rgba(0,0,0,0.038);
+  --s2:        rgba(0,0,0,0.055);
+  --s3:        rgba(0,0,0,0.075);
+  --b0:        rgba(0,0,0,0.07);
+  --b1:        rgba(130,88,8,0.22);
+  --b2:        rgba(60,110,90,0.2);
+  --b3:        rgba(170,60,70,0.2);
+  --tx:        #18150e;
+  --tx2:       #5e5a4e;
+  --tx3:       #a8a498;
+  --gold:      #8a5f08;
+  --gold2:     #a07020;
+  --gold-a:    rgba(138,95,8,0.08);
+  --sage:      #3a7e6a;
+  --sage-a:    rgba(58,126,106,0.08);
+  --rose:      #a04048;
+  --rose-a:    rgba(160,64,72,0.08);
+  --blue:      #2e5fa3;
+  --blue-a:    rgba(46,95,163,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--body);
+  background:var(--bg);
+  color:var(--tx);
+  min-height:100vh;
+  overflow-x:hidden;
+  transition:background .4s,color .4s;
 }
 
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  min-height: 100vh;
-  background: var(--bg);
-  font-family: 'DM Sans', sans-serif;
-  color: var(--text);
-  overflow-x: hidden;
-  overflow-y: auto;
+/* ── BACKGROUNDS ── */
+.bg-stage{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.bg-stage::before{
+  content:'';position:absolute;inset:-60%;width:220%;height:220%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.036'/%3E%3C/svg%3E");
+  background-size:260px 260px;
+  animation:grain 7s steps(8) infinite;
 }
-
-/* ── CANVAS BACKGROUND ── */
-.canvas {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  overflow: hidden;
-}
-.canvas::before {
-  content: '';
-  position: absolute;
-  width: 900px; height: 900px;
-  top: -200px; left: -200px;
-  background: radial-gradient(circle, rgba(92,79,255,0.08) 0%, transparent 65%);
-  animation: drift1 18s ease-in-out infinite alternate;
-}
-.canvas::after {
-  content: '';
-  position: absolute;
-  width: 700px; height: 700px;
-  bottom: -100px; right: -100px;
-  background: radial-gradient(circle, rgba(0,212,200,0.07) 0%, transparent 65%);
-  animation: drift2 22s ease-in-out infinite alternate;
-}
-@keyframes drift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(80px,60px) scale(1.1); } }
-@keyframes drift2 { from { transform: translate(0,0) scale(1); } to { transform: translate(-60px,-80px) scale(1.15); } }
-
-.grid-overlay {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background-image: 
-    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
-}
+@keyframes grain{0%{transform:translate(0,0)}12%{transform:translate(-2%,-3%)}25%{transform:translate(3%,1%)}37%{transform:translate(-1%,4%)}50%{transform:translate(4%,-2%)}62%{transform:translate(-3%,2%)}75%{transform:translate(2%,-4%)}87%{transform:translate(-4%,3%)}100%{transform:translate(0,0)}}
+.blob{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none}
+.b1{width:700px;height:700px;top:-260px;left:-220px;background:radial-gradient(circle,rgba(212,175,80,.065) 0%,transparent 65%);animation:bd 20s ease-in-out infinite alternate}
+.b2{width:500px;height:500px;bottom:-120px;right:-150px;background:radial-gradient(circle,rgba(122,158,142,.05) 0%,transparent 65%);animation:bd 26s ease-in-out infinite alternate-reverse}
+.b3{width:380px;height:380px;top:40%;left:55%;background:radial-gradient(circle,rgba(201,107,114,.038) 0%,transparent 70%);animation:bd 32s ease-in-out infinite alternate}
+@keyframes bd{from{transform:translate(0,0) scale(1)}to{transform:translate(55px,40px) scale(1.1)}}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.016) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.016) 1px,transparent 1px);
+  background-size:68px 68px;
+  mask-image:radial-gradient(ellipse 75% 75% at 50% 50%,black 15%,transparent 100%)}
+.light .bg-grid{background-image:linear-gradient(rgba(0,0,0,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.028) 1px,transparent 1px)}
 
 /* ── LAYOUT ── */
-.app {
-  position: relative; z-index: 10;
-  min-height: 100vh;
-  padding: 32px 24px 60px;
-  max-width: 1280px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
+#app{position:relative;z-index:10;max-width:1120px;margin:0 auto;padding:0 24px 80px}
+
+/* ── SCREEN SYSTEM ── */
+.screen{display:none;animation:scIn .5s var(--ease) both}
+.screen.active{display:block}
+@keyframes scIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:28px 0 32px;
+  animation:fadeD .7s var(--ease) both;
+}
+@keyframes fadeD{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
+@keyframes fadeU{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-gem{
+  width:40px;height:40px;border-radius:11px;
+  border:1px solid var(--b1);
+  background:linear-gradient(145deg,rgba(212,175,80,.14),rgba(212,175,80,.04));
+  display:flex;align-items:center;justify-content:center;
+}
+.logo-gem svg{width:18px;height:18px}
+.logo-name{font-family:var(--grotesk);font-size:1.3rem;font-weight:800;letter-spacing:-.4px;color:var(--tx)}
+.logo-name em{font-style:italic;font-family:var(--serif);color:var(--gold);font-size:1.5rem}
+.topbar-r{display:flex;align-items:center;gap:10px}
+
+/* toggle */
+.t-wrap{
+  display:flex;align-items:center;gap:8px;
+  background:var(--s1);border:1px solid var(--b0);
+  border-radius:var(--pill);padding:6px 14px 6px 10px;
+  cursor:pointer;transition:.2s;
+}
+.t-wrap:hover{border-color:var(--b1)}
+.t-track{width:30px;height:17px;background:var(--s3);border:1px solid var(--b0);border-radius:var(--pill);position:relative;transition:.3s}
+.t-track.on{background:var(--gold);border-color:transparent}
+.t-thumb{position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:var(--tx3);transition:.25s var(--ease)}
+.t-track.on .t-thumb{left:15px;background:#07070d}
+.t-lbl{font-family:var(--grotesk);font-size:11px;font-weight:500;color:var(--tx2);letter-spacing:.3px}
+.lang-sel{
+  background:var(--s1);border:1px solid var(--b0);border-radius:var(--pill);
+  padding:8px 15px;font-family:var(--grotesk);font-size:11px;font-weight:500;
+  color:var(--tx2);cursor:pointer;outline:none;transition:.2s;letter-spacing:.3px;
+}
+.lang-sel:hover{border-color:var(--b1);color:var(--tx)}
+.lang-sel option{background:#0d0d16}
+
+/* ── GLASS CARD ── */
+.card{
+  background:var(--s0);border:1px solid var(--b0);border-radius:var(--r);
+  padding:28px;position:relative;overflow:hidden;
+  backdrop-filter:blur(14px);transition:border-color .3s;
+}
+.card::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(145deg,rgba(255,255,255,.02) 0%,transparent 55%)}
+.card:hover{border-color:rgba(212,175,80,.1)}
+.card-sm{padding:22px}
+
+/* section label */
+.slabel{
+  font-family:var(--grotesk);font-size:9.5px;font-weight:700;
+  letter-spacing:2.4px;text-transform:uppercase;color:var(--tx3);
+  display:flex;align-items:center;gap:10px;margin-bottom:20px;
+}
+.slabel-line{flex:1;height:1px;background:linear-gradient(to right,var(--b0),transparent)}
+.slabel-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+
+/* ══════════════════════════════════════
+   SCREEN 1 — HOME
+══════════════════════════════════════ */
+#s-home .hero{
+  min-height:calc(100vh - 120px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:0;padding:40px 0;
+  animation:fadeU .8s .1s var(--ease) both;
+}
+.h-eyebrow{
+  font-family:var(--grotesk);font-size:10px;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;color:var(--gold);
+  display:flex;align-items:center;gap:10px;margin-bottom:28px;
+}
+.h-eyebrow::before,.h-eyebrow::after{content:'';display:block;width:26px;height:1px;background:var(--gold);opacity:.4}
+.h-title{
+  font-family:var(--serif);
+  font-size:clamp(2.8rem,6.5vw,5.2rem);
+  font-weight:400;line-height:1.05;letter-spacing:-1px;
+  color:var(--tx);text-align:center;margin-bottom:16px;
+}
+.h-title .it{font-style:italic;color:var(--gold)}
+.h-title .gh{-webkit-text-stroke:1px var(--tx3);color:transparent;font-style:italic}
+.h-sub{
+  font-family:var(--body);font-size:.97rem;color:var(--tx2);
+  line-height:1.72;text-align:center;max-width:380px;font-weight:300;margin-bottom:44px;
+}
+/* orb */
+.orb-scene{position:relative;width:190px;height:190px;display:flex;align-items:center;justify-content:center;margin-bottom:38px}
+.or{position:absolute;border-radius:50%;border:1px solid;animation:orb 4s ease-in-out infinite}
+.or1{width:190px;height:190px;border-color:rgba(212,175,80,.055);animation-delay:0s}
+.or2{width:146px;height:146px;border-color:rgba(212,175,80,.1);animation-delay:.6s}
+.or3{width:106px;height:106px;border-color:rgba(212,175,80,.17);animation-delay:1.2s}
+@keyframes orb{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.045)}}
+.orb-btn{
+  width:76px;height:76px;border-radius:50%;
+  border:1px solid var(--b1);
+  background:linear-gradient(145deg,rgba(212,175,80,.16),rgba(212,175,80,.05));
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;cursor:pointer;z-index:2;position:relative;
+  transition:transform .22s,box-shadow .3s,border-color .25s;
+  box-shadow:0 0 0 0 rgba(212,175,80,.2);
+}
+.orb-btn:hover{transform:scale(1.07);box-shadow:0 0 40px rgba(212,175,80,.18);border-color:rgba(212,175,80,.5)}
+.orb-btn.rec{border-color:rgba(201,107,114,.55);background:linear-gradient(145deg,rgba(201,107,114,.18),rgba(201,107,114,.07));animation:recPulse 1.4s ease-in-out infinite}
+@keyframes recPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,107,114,.35)}50%{box-shadow:0 0 0 20px rgba(201,107,114,0)}}
+
+/* wave */
+.wv{display:flex;align-items:center;gap:4px;height:30px;transition:opacity .4s}
+.wv.off{opacity:0;pointer-events:none}
+.wb{width:2.5px;border-radius:3px;background:var(--rose);animation:wa .9s ease-in-out infinite alternate}
+.wb:nth-child(1){height:5px;animation-delay:0s}.wb:nth-child(2){height:14px;animation-delay:.12s}
+.wb:nth-child(3){height:24px;animation-delay:.22s}.wb:nth-child(4){height:16px;animation-delay:.32s}
+.wb:nth-child(5){height:7px;animation-delay:.42s}.wb:nth-child(6){height:18px;animation-delay:.18s}
+.wb:nth-child(7){height:9px;animation-delay:.38s}
+@keyframes wa{from{transform:scaleY(.28)}to{transform:scaleY(1)}}
+
+/* CTA row */
+.cta-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center}
+.btn-gold{
+  padding:15px 38px;background:var(--gold);color:#07070d;
+  border:none;border-radius:var(--pill);
+  font-family:var(--grotesk);font-size:.85rem;font-weight:800;
+  letter-spacing:.7px;text-transform:uppercase;cursor:pointer;
+  box-shadow:0 4px 28px rgba(212,175,80,.24);transition:transform .2s,box-shadow .3s,opacity .2s;
+}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(212,175,80,.38);opacity:.94}
+.btn-gold:active{transform:scale(.98)}
+.btn-ghost{
+  padding:15px 26px;background:transparent;color:var(--tx2);
+  border:1px solid var(--b0);border-radius:var(--pill);
+  font-family:var(--grotesk);font-size:.85rem;font-weight:500;cursor:pointer;transition:.2s;
+}
+.btn-ghost:hover{border-color:var(--b1);color:var(--tx)}
+
+/* home cards grid */
+.home-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:14px;
+  max-width:560px;width:100%;margin-top:44px;
+}
+.home-card{
+  background:var(--s0);border:1px solid var(--b0);border-radius:var(--r);
+  padding:22px;cursor:pointer;transition:all .25s var(--ease);
+  display:flex;align-items:flex-start;gap:14px;
+  backdrop-filter:blur(10px);
+}
+.home-card:hover{border-color:var(--b1);background:var(--s1);transform:translateY(-3px);box-shadow:0 12px 36px rgba(0,0,0,.2)}
+.hc-icon{
+  width:42px;height:42px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.hc-title{font-family:var(--grotesk);font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.hc-sub{font-family:var(--body);font-size:11px;color:var(--tx2);line-height:1.55;font-weight:300}
+
+/* pills */
+.feat-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:32px}
+.fpill{
+  display:flex;align-items:center;gap:7px;
+  font-family:var(--grotesk);font-size:11px;font-weight:500;color:var(--tx2);
+  border:1px solid var(--b0);background:var(--s0);
+  padding:6px 14px;border-radius:var(--pill);letter-spacing:.3px;
+  transition:.2s;backdrop-filter:blur(8px);
+}
+.fpill:hover{border-color:var(--b1);color:var(--tx)}
+.fp-d{width:5px;height:5px;border-radius:50%}
+
+/* ══════════════════════════════════════
+   SCREEN 2 — PROFILE SETUP
+══════════════════════════════════════ */
+.setup-wrap{max-width:560px;margin:0 auto;padding:20px 0}
+.setup-step{
+  display:none;flex-direction:column;gap:24px;
+  animation:fadeU .5s var(--ease) both;
+}
+.setup-step.active{display:flex}
+.step-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--grotesk);font-size:10px;font-weight:700;
+  letter-spacing:2.2px;text-transform:uppercase;color:var(--gold);
+  background:var(--gold-a);border:1px solid rgba(212,175,80,.2);
+  padding:5px 13px;border-radius:var(--pill);margin-bottom:4px;
+}
+.step-title{font-family:var(--serif);font-size:2rem;font-weight:400;line-height:1.15;color:var(--tx)}
+.step-title em{font-style:italic;color:var(--gold)}
+.step-desc{font-family:var(--body);font-size:.9rem;color:var(--tx2);line-height:1.7;font-weight:300}
+
+/* form inputs */
+.inp-group{display:flex;flex-direction:column;gap:7px}
+.inp-label{font-family:var(--grotesk);font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--tx3)}
+.inp{
+  background:var(--s1);border:1px solid var(--b0);border-radius:var(--rs);
+  padding:14px 18px;font-family:var(--body);font-size:.9rem;font-weight:300;
+  color:var(--tx);outline:none;transition:.25s;
+  font-style:italic;
+}
+.inp::placeholder{color:var(--tx3);font-style:italic}
+.inp:focus{border-color:rgba(212,175,80,.3);box-shadow:0 0 0 3px rgba(212,175,80,.06);background:var(--s2)}
+.inp-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* voice enroll */
+.enroll-area{
+  background:var(--s1);border:1px solid var(--b0);border-radius:var(--r);
+  padding:32px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;
+}
+.enroll-orb{
+  width:72px;height:72px;border-radius:50%;
+  border:1px solid var(--b1);
+  background:linear-gradient(145deg,rgba(212,175,80,.14),rgba(212,175,80,.04));
+  display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;
+  transition:.22s;box-shadow:0 0 0 0 rgba(212,175,80,.2);
+}
+.enroll-orb:hover{transform:scale(1.06);box-shadow:0 0 30px rgba(212,175,80,.18)}
+.enroll-orb.rec{border-color:rgba(201,107,114,.55);background:linear-gradient(145deg,rgba(201,107,114,.18),rgba(201,107,114,.06));animation:recPulse 1.4s ease-in-out infinite}
+.enroll-title{font-family:var(--grotesk);font-size:14px;font-weight:600;color:var(--tx)}
+.enroll-desc{font-family:var(--body);font-size:12px;color:var(--tx2);line-height:1.65;font-weight:300}
+.enroll-prog{width:100%;background:var(--s2);border-radius:var(--pill);height:4px;overflow:hidden}
+.enroll-fill{height:100%;border-radius:var(--pill);background:var(--gold);width:0%;transition:width .4s var(--ease)}
+.enroll-status{font-family:var(--grotesk);font-size:11px;color:var(--tx3);letter-spacing:.3px}
+
+.btn-row{display:flex;gap:10px;justify-content:flex-end}
+.btn-primary{
+  padding:13px 28px;background:var(--gold);color:#07070d;
+  border:none;border-radius:var(--pill);
+  font-family:var(--grotesk);font-size:12px;font-weight:800;
+  letter-spacing:.6px;text-transform:uppercase;cursor:pointer;transition:.2s;
+}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-outline{
+  padding:13px 22px;background:transparent;color:var(--tx2);
+  border:1px solid var(--b0);border-radius:var(--pill);
+  font-family:var(--grotesk);font-size:12px;font-weight:500;cursor:pointer;transition:.2s;
+}
+.btn-outline:hover{border-color:var(--b1);color:var(--tx)}
+
+/* progress dots */
+.prog-dots{display:flex;justify-content:center;gap:8px;padding:8px 0 0}
+.pd{width:7px;height:7px;border-radius:50%;background:var(--s3);transition:.3s}
+.pd.on{background:var(--gold);width:20px;border-radius:var(--pill)}
+
+/* ══════════════════════════════════════
+   SCREEN 3 — SESSION SELECTOR
+══════════════════════════════════════ */
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:600px;margin:0 auto}
+.mode-card{
+  background:var(--s0);border:1px solid var(--b0);border-radius:var(--r);
+  padding:32px 24px;cursor:pointer;transition:all .26s var(--ease);
+  display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;
+  backdrop-filter:blur(12px);position:relative;overflow:hidden;
+}
+.mode-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;border-radius:inherit}
+.mode-card.mode-personal::before{background:linear-gradient(145deg,rgba(212,175,80,.06),transparent)}
+.mode-card.mode-meeting::before{background:linear-gradient(145deg,rgba(122,158,142,.06),transparent)}
+.mode-card:hover::before{opacity:1}
+.mode-card:hover{border-color:var(--b1);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.22)}
+.mode-icon{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:26px}
+.mode-title{font-family:var(--grotesk);font-size:1.05rem;font-weight:800;color:var(--tx)}
+.mode-desc{font-family:var(--body);font-size:12px;color:var(--tx2);line-height:1.68;font-weight:300}
+.mode-tag{
+  font-family:var(--grotesk);font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;
+  padding:4px 12px;border-radius:var(--pill);
 }
 
-/* ── TOP NAV ── */
-.nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 4px;
-  animation: fadeDown 0.6s cubic-bezier(0.2,0.8,0.2,1) both;
-}
-@keyframes fadeDown { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
+/* ══════════════════════════════════════
+   SCREEN 4A — PERSONAL SESSION
+══════════════════════════════════════ */
+.session-layout{display:grid;grid-template-columns:1.35fr 1fr;gap:18px}
+.sess-left{display:flex;flex-direction:column;gap:18px}
+.sess-right{display:flex;flex-direction:column;gap:18px}
 
-.logo-group { display: flex; align-items: center; gap: 14px; }
+/* mic panel */
+.mic-panel{
+  display:flex;flex-direction:column;align-items:center;gap:18px;
+  padding:36px 24px;position:relative;
+}
+.rpill{
+  position:absolute;top:16px;right:16px;
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--grotesk);font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--rose);background:var(--rose-a);border:1px solid rgba(201,107,114,.2);
+  padding:4px 12px;border-radius:var(--pill);
+  opacity:0;transform:scale(.9);transition:all .3s;pointer-events:none;
+}
+.rpill.on{opacity:1;transform:scale(1)}
+.rbt{width:5px;height:5px;border-radius:50%;background:var(--rose);animation:blink 1.1s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
+.session-orb{position:relative;width:100px;height:100px;display:flex;align-items:center;justify-content:center}
+.so-ring{position:absolute;border-radius:50%;border:1px solid;animation:orb 4s ease-in-out infinite}
+.so-r1{width:100px;height:100px;border-color:rgba(212,175,80,.07)}
+.so-r2{width:72px;height:72px;border-color:rgba(212,175,80,.13);animation-delay:.7s}
+.mic-big{
+  width:56px;height:56px;border-radius:50%;
+  border:1px solid var(--b1);background:linear-gradient(145deg,rgba(212,175,80,.16),rgba(212,175,80,.05));
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  cursor:pointer;z-index:2;position:relative;
+  transition:transform .22s,box-shadow .3s;box-shadow:0 4px 20px rgba(212,175,80,.12);
+}
+.mic-big:hover{transform:scale(1.07);box-shadow:0 8px 32px rgba(212,175,80,.26)}
+.mic-big.rec{border-color:rgba(201,107,114,.5);background:linear-gradient(145deg,rgba(201,107,114,.18),rgba(201,107,114,.07));animation:recPulse 1.4s ease-in-out infinite}
+.mic-state{font-family:var(--grotesk);font-size:12px;color:var(--tx2);letter-spacing:.3px}
+.dw-row{display:flex;align-items:center;gap:3.5px;height:26px;transition:opacity .35s}
+.dw-row.off{opacity:0}
+.dw{width:2.5px;border-radius:3px;background:var(--rose);animation:wa .9s ease-in-out infinite alternate}
+.dw:nth-child(1){height:4px;animation-delay:0s}.dw:nth-child(2){height:12px;animation-delay:.1s}
+.dw:nth-child(3){height:22px;animation-delay:.2s}.dw:nth-child(4){height:14px;animation-delay:.3s}
+.dw:nth-child(5){height:6px;animation-delay:.4s}.dw:nth-child(6){height:16px;animation-delay:.15s}
+.dw:nth-child(7){height:8px;animation-delay:.35s}
 
-.logo-icon {
-  width: 42px; height: 42px;
-  background: linear-gradient(135deg, var(--accent-violet), var(--accent-indigo));
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  box-shadow: 0 0 30px rgba(124,109,255,0.35);
-  position: relative;
-  overflow: hidden;
+/* transcript */
+.txarea{
+  width:100%;min-height:190px;background:var(--s1);border:1px solid var(--b0);border-radius:var(--rs);
+  padding:18px 20px;font-family:var(--body);font-size:.9rem;line-height:1.84;
+  color:var(--tx2);resize:vertical;transition:.3s;font-weight:300;
 }
-.logo-icon::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%);
-  border-radius: inherit;
-}
+.txarea:focus{outline:none;border-color:rgba(212,175,80,.26);box-shadow:0 0 0 3px rgba(212,175,80,.06);background:var(--s2)}
+.txarea.has{color:var(--tx)}.txarea.live{border-color:rgba(201,107,114,.22)}
+.txarea::placeholder{color:var(--tx3);font-style:italic;font-family:var(--serif)}
 
-.logo-text {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  color: #fff;
+/* actions */
+.act-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.abtn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 16px;border-radius:14px;border:none;
+  font-family:var(--grotesk);font-size:12.5px;font-weight:600;cursor:pointer;transition:.22s;
+  letter-spacing:.2px;white-space:nowrap;
 }
-.logo-text span { color: var(--accent-violet); }
+.abtn-main{grid-column:span 2;padding:15px;background:var(--gold);color:#07070d;font-size:13px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;box-shadow:0 4px 24px rgba(212,175,80,.2)}
+.abtn-main:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(212,175,80,.36);opacity:.94}
+.abtn-sec{background:var(--s1);border:1px solid var(--b0);color:var(--tx2)}
+.abtn-sec:hover{background:var(--s2);color:var(--tx);border-color:rgba(212,175,80,.14);transform:translateY(-1px)}
+.abtn-del{border-color:rgba(201,107,114,.14)!important;color:var(--rose)!important}
+.abtn-del:hover{background:var(--rose-a)!important;border-color:rgba(201,107,114,.3)!important}
+.abtn-sage{border-color:rgba(122,158,142,.18)!important;color:var(--sage)!important}
+.abtn-sage:hover{background:var(--sage-a)!important;border-color:rgba(122,158,142,.35)!important}
 
-.nav-badge {
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--accent-cyan);
-  background: rgba(0,212,200,0.1);
-  border: 1px solid rgba(0,212,200,0.2);
-  padding: 4px 12px;
-  border-radius: var(--radius-pill);
+/* insight cards */
+.insight-grid{display:flex;flex-direction:column;gap:10px}
+.insight-cat{
+  background:var(--s1);border:1px solid var(--b0);border-radius:var(--rs);padding:14px 16px;
+  display:flex;align-items:flex-start;gap:12px;transition:.2s;
 }
+.insight-cat:hover{border-color:rgba(212,175,80,.1);background:var(--s2)}
+.ic-left{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0}
+.ic-emoji{font-size:18px;line-height:1}
+.ic-count{
+  font-family:var(--grotesk);font-size:10px;font-weight:700;
+  color:var(--tx3);letter-spacing:.5px;
+}
+.ic-body{flex:1;min-width:0}
+.ic-title{font-family:var(--grotesk);font-size:12px;font-weight:700;color:var(--tx);margin-bottom:6px}
+.ic-items{display:flex;flex-direction:column;gap:4px}
+.ic-item{
+  font-family:var(--body);font-size:11.5px;color:var(--tx2);line-height:1.55;font-weight:300;
+  padding:4px 0;border-bottom:1px solid var(--b0);
+}
+.ic-item:last-child{border:none}
+.ic-empty{font-family:var(--body);font-size:11px;color:var(--tx3);font-style:italic}
 
-.nav-controls { display: flex; align-items: center; gap: 12px; }
+/* output ai */
+.out-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.sbadge{
+  font-family:var(--grotesk);font-size:9px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;
+  color:var(--sage);background:var(--sage-a);border:1px solid rgba(122,158,142,.2);
+  padding:4px 11px;border-radius:var(--pill);transition:.35s;
+}
+.out-body{
+  background:var(--s1);border:1px solid var(--b0);border-radius:var(--rs);
+  padding:16px 18px;min-height:88px;
+  font-family:var(--body);font-size:.87rem;line-height:1.82;color:var(--tx2);font-weight:300;transition:.3s;
+}
+.out-body.has{color:var(--tx)}
+.think-row{display:flex;align-items:center;gap:7px}
+.td{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:tda 1.2s ease-in-out infinite}
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes tda{0%,80%,100%{transform:scale(.35);opacity:.2}40%{transform:scale(1);opacity:1}}
+.think-t{font-family:var(--grotesk);font-size:11.5px;color:var(--tx3);margin-left:4px;letter-spacing:.3px}
 
-.lang-select-wrap {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  padding: 8px 14px;
-  border-radius: var(--radius-pill);
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  transition: 0.2s;
+/* ══════════════════════════════════════
+   SCREEN 4B — MEETING MODE
+══════════════════════════════════════ */
+.meeting-layout{display:grid;grid-template-columns:1fr 1.2fr;gap:18px}
+.speaker-list{display:flex;flex-direction:column;gap:10px}
+.speaker-card{
+  background:var(--s1);border:1px solid var(--b0);border-radius:var(--rs);
+  padding:12px 14px;display:flex;align-items:center;gap:12px;transition:.2s;
 }
-.lang-select-wrap:hover { border-color: var(--border-glow); color: var(--text); }
-.lang-select-wrap i { color: var(--accent-violet); font-size: 0.75rem; }
-.lang-select-wrap select {
-  background: none; border: none; color: inherit;
-  font-family: inherit; font-size: inherit;
-  cursor: pointer; outline: none;
-  font-weight: 500;
+.speaker-card:hover{border-color:rgba(212,175,80,.12);background:var(--s2)}
+.spk-avatar{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--grotesk);font-size:13px;font-weight:700;
+  flex-shrink:0;
 }
-.lang-select-wrap select option { background: #1a1a2e; }
+.spk-info{flex:1;min-width:0}
+.spk-name{font-family:var(--grotesk);font-size:12.5px;font-weight:700;color:var(--tx)}
+.spk-role{font-family:var(--body);font-size:11px;color:var(--tx2);font-weight:300}
+.spk-indicator{
+  width:8px;height:8px;border-radius:50%;background:var(--s3);flex-shrink:0;transition:.3s;
+}
+.spk-indicator.active{background:var(--sage);box-shadow:0 0 8px rgba(122,158,142,.5)}
+.meeting-feed{
+  background:var(--s1);border:1px solid var(--b0);border-radius:var(--rs);
+  padding:16px;max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;
+}
+.meeting-feed::-webkit-scrollbar{width:2px}
+.meeting-feed::-webkit-scrollbar-thumb{background:var(--s3);border-radius:10px}
+.feed-msg{display:flex;gap:10px;animation:itemIn .35s var(--ease) both}
+@keyframes itemIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
+.feed-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--grotesk);font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px}
+.feed-bubble{flex:1;min-width:0}
+.feed-who{font-family:var(--grotesk);font-size:10px;font-weight:700;color:var(--tx2);margin-bottom:4px;letter-spacing:.3px}
+.feed-txt{font-family:var(--body);font-size:12px;line-height:1.62;color:var(--tx);font-weight:300}
+.add-speaker-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--s0);border:1px dashed var(--b0);border-radius:var(--rs);
+  padding:12px;font-family:var(--grotesk);font-size:11px;font-weight:500;
+  color:var(--tx3);cursor:pointer;transition:.2s;
+}
+.add-speaker-btn:hover{border-color:rgba(212,175,80,.2);color:var(--tx2)}
 
-/* ── MAIN GRID ── */
-.grid {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  gap: 20px;
-  animation: fadeUp 0.7s 0.1s cubic-bezier(0.2,0.8,0.2,1) both;
+/* ══════════════════════════════════════
+   SCREEN 5 — INSIGHT DASHBOARD
+══════════════════════════════════════ */
+.dash-toprow{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.dash-title{font-family:var(--serif);font-size:1.7rem;font-weight:400;color:var(--tx)}
+.dash-title em{font-style:italic;color:var(--gold)}
+.filter-row{display:flex;align-items:center;gap:8px}
+.filter-chip{
+  font-family:var(--grotesk);font-size:11px;font-weight:500;
+  padding:6px 14px;border-radius:var(--pill);
+  border:1px solid var(--b0);background:var(--s0);color:var(--tx2);
+  cursor:pointer;transition:.2s;
 }
-@keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+.filter-chip:hover{border-color:var(--b1);color:var(--tx)}
+.filter-chip.active{background:var(--gold-a);border-color:rgba(212,175,80,.28);color:var(--gold)}
+.search-bar{
+  display:flex;align-items:center;gap:10px;
+  background:var(--s1);border:1px solid var(--b0);border-radius:var(--rs);
+  padding:10px 16px;margin-bottom:20px;
+}
+.search-bar input{
+  flex:1;background:none;border:none;outline:none;
+  font-family:var(--body);font-size:.88rem;color:var(--tx);font-weight:300;
+}
+.search-bar input::placeholder{color:var(--tx3);font-style:italic}
+.search-icon{color:var(--tx3);font-size:14px}
+.dash-main-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+.dash-insights-col{display:flex;flex-direction:column;gap:14px}
+.dash-side-col{display:flex;flex-direction:column;gap:14px}
+.insight-entry{
+  background:var(--s0);border:1px solid var(--b0);border-radius:var(--rs);
+  padding:18px;cursor:pointer;transition:.2s;
+}
+.insight-entry:hover{border-color:rgba(212,175,80,.14);background:var(--s1)}
+.ie-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ie-type{
+  font-family:var(--grotesk);font-size:9.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;
+  padding:3px 10px;border-radius:var(--pill);
+}
+.ie-date{font-family:var(--grotesk);font-size:10px;color:var(--tx3)}
+.ie-text{font-family:var(--body);font-size:.88rem;line-height:1.7;color:var(--tx2);font-weight:300}
+.stats-mini{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.smc{
+  background:var(--s1);border:1px solid var(--b0);border-radius:var(--rs);
+  padding:16px;display:flex;flex-direction:column;gap:4px;
+}
+.smc-val{font-family:var(--grotesk);font-size:1.6rem;font-weight:800;color:var(--tx);line-height:1}
+.smc-lbl{font-family:var(--grotesk);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3)}
+.daily-summary{
+  background:var(--s1);border:1px solid var(--b0);border-radius:var(--rs);
+  padding:18px;display:flex;flex-direction:column;gap:12px;
+}
+.ds-title{font-family:var(--grotesk);font-size:12px;font-weight:700;color:var(--tx)}
+.ds-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:8px 0;border-bottom:1px solid var(--b0);
+}
+.ds-item:last-child{border:none;padding-bottom:0}
+.ds-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.ds-txt{font-family:var(--body);font-size:12px;color:var(--tx2);line-height:1.55;font-weight:300}
 
-/* ── PANEL BASE ── */
-.panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 28px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.3s;
+/* ══════════════════════════════════════
+   SCREEN 6 — ACTION APPROVAL
+══════════════════════════════════════ */
+.approval-list{display:flex;flex-direction:column;gap:14px;max-width:640px;margin:0 auto}
+.approval-card{
+  background:var(--s0);border:1px solid var(--b0);border-radius:var(--r);
+  padding:22px;transition:.2s;
 }
-.panel::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(124,109,255,0.03) 0%, transparent 50%);
-  pointer-events: none;
-  border-radius: inherit;
+.approval-card:hover{border-color:rgba(212,175,80,.1)}
+.ac-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.ac-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ac-title{font-family:var(--grotesk);font-size:13.5px;font-weight:700;color:var(--tx);margin-bottom:3px}
+.ac-sub{font-family:var(--body);font-size:11.5px;color:var(--tx2);font-weight:300}
+.ac-preview{
+  background:var(--s2);border:1px solid var(--b0);border-radius:var(--rs);
+  padding:14px 16px;margin-bottom:14px;
+  font-family:var(--body);font-size:.87rem;line-height:1.72;color:var(--tx2);font-weight:300;
+  border-left:2px solid var(--gold);
 }
-.panel:hover { border-color: rgba(124,109,255,0.15); }
-
-/* ── INPUT PANEL ── */
-.input-panel { display: flex; flex-direction: column; gap: 22px; }
-
-.panel-label {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 1.8px;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-.panel-label i { color: var(--accent-violet); font-size: 0.65rem; }
-
-.voice-area {
-  position: relative;
-}
-
-.textarea-shell {
-  position: relative;
-  border-radius: 16px;
-  overflow: hidden;
-}
-.textarea-shell::before {
-  content: '';
-  position: absolute; inset: 0;
-  border-radius: 16px;
-  padding: 1px;
-  background: linear-gradient(135deg, var(--border-glow), var(--border), var(--border));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.4s;
-}
-.textarea-shell:focus-within::before { opacity: 1; }
-
-textarea#inputBox {
-  width: 100%;
-  min-height: 240px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 22px 24px;
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 300;
-  line-height: 1.8;
-  resize: none;
-  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
-}
-textarea#inputBox:focus {
-  outline: none;
-  background: rgba(18,18,31,0.9);
-  border-color: rgba(124,109,255,0.3);
-  box-shadow: 0 0 40px rgba(124,109,255,0.08), inset 0 1px 0 rgba(255,255,255,0.03);
-}
-textarea#inputBox::placeholder { color: var(--text-dim); }
-
-.voice-status {
-  position: absolute;
-  top: 16px; right: 16px;
-  display: flex; align-items: center; gap: 7px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: #ff6b8a;
-  background: rgba(255,77,141,0.08);
-  border: 1px solid rgba(255,77,141,0.15);
-  padding: 5px 12px;
-  border-radius: var(--radius-pill);
-  opacity: 0;
-  transform: scale(0.9);
-  transition: all 0.3s;
-  pointer-events: none;
-}
-.voice-status.active { opacity: 1; transform: scale(1); }
-.voice-dot {
-  width: 6px; height: 6px;
-  background: var(--accent-rose);
-  border-radius: 50%;
-  animation: pulse-dot 1.2s ease-in-out infinite;
-}
-@keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.6)} }
-
-/* ── ACTION BUTTONS ── */
-.actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.btn {
-  display: flex; align-items: center; justify-content: center; gap: 9px;
-  padding: 14px 20px;
-  border-radius: 14px;
-  border: none;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
-  position: relative;
-  overflow: hidden;
-  white-space: nowrap;
-}
-.btn::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.06) 0%, transparent 100%);
-  border-radius: inherit;
-  pointer-events: none;
-}
-.btn i { font-size: 0.8rem; }
-
-.btn-start {
-  background: linear-gradient(135deg, var(--accent-violet), var(--accent-indigo));
-  color: #fff;
-  box-shadow: 0 4px 20px rgba(124,109,255,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
-}
-.btn-start:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(124,109,255,0.45), inset 0 1px 0 rgba(255,255,255,0.15);
-}
-.btn-start:active { transform: translateY(0) scale(0.98); }
-
-.btn-stop {
-  background: var(--surface2);
-  color: var(--text-muted);
-  border: 1px solid var(--border);
-}
-.btn-stop:hover { background: var(--surface3); color: var(--text); border-color: rgba(255,255,255,0.1); transform: translateY(-1px); }
-
-.btn-analyze {
-  grid-column: span 2;
-  padding: 17px;
-  background: linear-gradient(135deg, #1a1a2e, #16213e);
-  border: 1px solid var(--border-glow);
-  color: #fff;
-  font-size: 0.9rem;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  position: relative;
-  overflow: hidden;
-}
-.btn-analyze::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(124,109,255,0.15) 0%, rgba(0,212,200,0.08) 100%);
-  border-radius: inherit;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-.btn-analyze:hover::before { opacity: 1; }
-.btn-analyze:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 40px rgba(124,109,255,0.2);
-  border-color: rgba(124,109,255,0.4);
+.ac-actions{display:flex;gap:10px;justify-content:flex-end}
+.rule-notice{
+  display:flex;align-items:center;gap:10px;
+  background:var(--gold-a);border:1px solid rgba(212,175,80,.2);
+  border-radius:var(--rs);padding:12px 16px;margin-bottom:20px;
+  font-family:var(--grotesk);font-size:11.5px;color:var(--tx2);letter-spacing:.2px;
 }
 
-.btn-util {
-  background: var(--surface2);
-  color: var(--text-muted);
-  border: 1px solid var(--border);
+/* ══════════════════════════════════════
+   BOTTOM NAV
+══════════════════════════════════════ */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  display:flex;justify-content:center;padding:0 0 20px;
+  pointer-events:none;
 }
-.btn-util:hover { background: var(--surface3); color: var(--text); transform: translateY(-1px); }
+.bnav{
+  display:flex;align-items:center;gap:2px;
+  background:rgba(7,7,13,.85);border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--pill);padding:6px;
+  backdrop-filter:blur(24px);pointer-events:all;
+  box-shadow:0 8px 40px rgba(0,0,0,.4);
+}
+.light .bnav{background:rgba(242,237,227,.9);border-color:rgba(0,0,0,.08)}
+.bnav-item{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 18px;border-radius:var(--pill);
+  font-family:var(--grotesk);font-size:11.5px;font-weight:500;
+  color:var(--tx2);cursor:pointer;transition:.22s;
+  white-space:nowrap;
+}
+.bnav-item:hover{background:var(--s1);color:var(--tx)}
+.bnav-item.active{background:var(--gold-a);color:var(--gold);border:1px solid rgba(212,175,80,.2)}
+.bnav-item .ni{font-size:15px;line-height:1}
 
-/* ── SIDEBAR ── */
-.sidebar { display: flex; flex-direction: column; gap: 16px; }
+/* ══════════════════════════════════════
+   MEMORY / HISTORY
+══════════════════════════════════════ */
+.h-scroll{max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding-right:2px}
+.h-scroll::-webkit-scrollbar{width:2px}
+.h-scroll::-webkit-scrollbar-thumb{background:var(--s3);border-radius:10px}
+.h-item{
+  background:var(--s1);border:1px solid var(--b0);border-left:2px solid var(--gold2);
+  border-radius:var(--rs);padding:9px 13px;
+  font-family:var(--body);font-size:12px;line-height:1.55;color:var(--tx2);font-weight:300;
+  animation:itemIn .35s var(--ease) both;transition:.2s;cursor:default;
+}
+.h-item:hover{background:var(--s2);color:var(--tx);border-color:rgba(212,175,80,.2)}
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px;
+  font-family:var(--grotesk);font-size:11px;color:var(--tx3);letter-spacing:.4px;text-align:center;
+}
+.es-icon{width:36px;height:36px;border:1px solid var(--b0);border-radius:10px;background:var(--s1);display:flex;align-items:center;justify-content:center;font-size:14px}
 
-/* ── OUTPUT PANEL ── */
-.output-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-height: 0;
+/* responsive */
+@media(max-width:820px){
+  .session-layout,.meeting-layout,.dash-main-grid{grid-template-columns:1fr}
+  .mode-grid{grid-template-columns:1fr}
+  .home-grid{grid-template-columns:1fr}
+  #app{padding:0 16px 80px}
+  .bnav-item .nl{display:none}
 }
-
-.output-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.output-label {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 0.7rem; font-weight: 600;
-  letter-spacing: 1.8px; text-transform: uppercase;
-  color: var(--text-dim);
-}
-.output-label i { color: var(--accent-cyan); font-size: 0.65rem; }
-
-.status-pill {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 0.65rem; font-weight: 700;
-  letter-spacing: 1px; text-transform: uppercase;
-  color: var(--accent-cyan);
-  background: rgba(0,212,200,0.07);
-  border: 1px solid rgba(0,212,200,0.15);
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-}
-.status-dot {
-  width: 5px; height: 5px;
-  background: var(--accent-cyan);
-  border-radius: 50%;
-}
-
-.output-body {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px;
-  flex: 1;
-  min-height: 140px;
-  font-size: 0.88rem;
-  line-height: 1.75;
-  color: var(--text-muted);
-  transition: 0.3s;
-}
-
-.output-body.has-content { color: var(--text); }
-
-/* ── MEMORY PANEL ── */
-.memory-panel { display: flex; flex-direction: column; gap: 14px; }
-
-.memory-header {
-  display: flex; align-items: center;
-  justify-content: space-between;
-}
-
-.memory-label {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 0.7rem; font-weight: 600;
-  letter-spacing: 1.8px; text-transform: uppercase;
-  color: var(--text-dim);
-}
-.memory-label i { color: var(--accent-amber); font-size: 0.65rem; }
-
-.btn-trash {
-  width: 28px; height: 28px;
-  display: flex; align-items: center; justify-content: center;
-  background: none; border: 1px solid var(--border);
-  border-radius: 8px; cursor: pointer;
-  color: var(--text-dim); font-size: 0.7rem;
-  transition: 0.2s;
-}
-.btn-trash:hover { color: var(--accent-rose); border-color: rgba(255,77,141,0.25); background: rgba(255,77,141,0.05); }
-
-.history-scroll {
-  max-height: 260px;
-  overflow-y: auto;
-  padding-right: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.history-scroll::-webkit-scrollbar { width: 3px; }
-.history-scroll::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 10px; }
-.history-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent-violet); }
-
-.history-item {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-left: 2px solid var(--accent-violet);
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 0.78rem;
-  line-height: 1.5;
-  color: var(--text-muted);
-  animation: itemIn 0.35s cubic-bezier(0.2,0.8,0.2,1) both;
-  transition: 0.2s;
-}
-.history-item:hover { background: var(--surface3); color: var(--text); border-color: rgba(124,109,255,0.2); }
-@keyframes itemIn { from { opacity:0; transform:translateX(8px); } to { opacity:1; transform:translateX(0); } }
-
-.empty-state {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 10px; padding: 24px;
-  color: var(--text-dim); font-size: 0.78rem; text-align: center;
-}
-.empty-icon {
-  width: 40px; height: 40px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; color: var(--text-dim);
-}
-
-/* ── STATS BAR ── */
-.stats-bar {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  animation: fadeUp 0.8s 0.2s cubic-bezier(0.2,0.8,0.2,1) both;
-}
-
-.stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 18px 20px;
-  display: flex; align-items: center; gap: 14px;
-  position: relative; overflow: hidden;
-  transition: 0.3s;
-}
-.stat-card::before {
-  content: '';
-  position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
-  background: var(--stat-color, var(--accent-violet));
-  border-radius: 0 2px 2px 0;
-}
-.stat-card:hover { border-color: rgba(124,109,255,0.15); transform: translateY(-2px); }
-
-.stat-icon {
-  width: 36px; height: 36px;
-  background: rgba(124,109,255,0.08);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  color: var(--stat-color, var(--accent-violet));
-  flex-shrink: 0;
-}
-
-.stat-content { min-width: 0; }
-.stat-value {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1;
-}
-.stat-label {
-  font-size: 0.68rem;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 600;
-  margin-top: 4px;
-}
-
-/* ── LOADER ANIMATION ── */
-@keyframes spin { to { transform: rotate(360deg); } }
-.fa-spin { animation: spin 0.8s linear infinite; }
-
-/* ── THINKING SHIMMER ── */
-.thinking {
-  display: flex; align-items: center; gap: 8px;
-  color: var(--text-dim); font-size: 0.82rem;
-}
-.shimmer-dots { display: flex; gap: 4px; }
-.shimmer-dot {
-  width: 5px; height: 5px;
-  background: var(--accent-violet);
-  border-radius: 50%;
-  animation: bounce-dot 1.2s ease-in-out infinite;
-}
-.shimmer-dot:nth-child(2) { animation-delay: 0.2s; }
-.shimmer-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes bounce-dot { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
-
-/* ── RESPONSIVE ── */
-@media (max-width: 900px) {
-  .grid { grid-template-columns: 1fr; }
-  .stats-bar { grid-template-columns: 1fr 1fr; }
-  .app { padding: 20px 16px 48px; }
-}
-@media (max-width: 500px) {
-  .stats-bar { grid-template-columns: 1fr; }
-  .actions { grid-template-columns: 1fr 1fr; }
-  .logo-text { font-size: 1.2rem; }
+@media(max-width:500px){
+  .h-title{font-size:2.4rem}
+  .stats-mini{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
 <body>
 
-<div class="canvas"></div>
-<div class="grid-overlay"></div>
+<!-- BG -->
+<div class="bg-stage">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+<div class="bg-grid"></div>
 
-<div class="app">
-
-  <!-- NAV -->
-  <nav class="nav">
-    <div class="logo-group">
-      <div class="logo-icon">
-        <i class="fas fa-wave-square" style="color:#fff;position:relative;z-index:1;font-size:16px;"></i>
-      </div>
-      <div class="logo-text">UNO<span>Voice</span></div>
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <nav class="bnav" id="bottomNav">
+    <div class="bnav-item active" onclick="navTo('s-home')" data-screen="s-home">
+      <span class="ni">🏠</span><span class="nl">Home</span>
     </div>
-    <div class="nav-badge">Cognitive Insight Engine</div>
-    <div class="nav-controls">
-      <div class="lang-select-wrap">
-        <i class="fas fa-globe"></i>
-        <select id="languageSelect">
-          <option value="en-US">English (US)</option>
-          <option value="bn-BD">বাংলা (BD)</option>
-        </select>
-      </div>
+    <div class="bnav-item" onclick="navTo('s-session-selector')" data-screen="s-session-selector">
+      <span class="ni">🎙</span><span class="nl">Session</span>
+    </div>
+    <div class="bnav-item" onclick="navTo('s-dashboard')" data-screen="s-dashboard">
+      <span class="ni">📊</span><span class="nl">Insights</span>
+    </div>
+    <div class="bnav-item" onclick="navTo('s-approval')" data-screen="s-approval">
+      <span class="ni">✅</span><span class="nl">Approvals</span>
+    </div>
+    <div class="bnav-item" onclick="navTo('s-profile')" data-screen="s-profile">
+      <span class="ni">👤</span><span class="nl">Profile</span>
     </div>
   </nav>
-
-  <!-- MAIN GRID -->
-  <div class="grid">
-
-    <!-- LEFT: INPUT PANEL -->
-    <div class="panel input-panel">
-      <div class="panel-label">
-        <i class="fas fa-microphone-lines"></i>
-        Voice Intelligence Input
-      </div>
-
-      <div class="voice-area">
-        <div class="textarea-shell">
-          <textarea id="inputBox" placeholder="Start speaking or type your thoughts... The AI will transform them into strategic intelligence."></textarea>
-        </div>
-        <div class="voice-status" id="voiceIndicator">
-          <div class="voice-dot"></div>
-          Live
-        </div>
-      </div>
-
-      <div class="actions">
-        <button class="btn btn-start" id="startBtn">
-          <i class="fas fa-microphone"></i> Start Session
-        </button>
-        <button class="btn btn-stop" id="stopBtn">
-          <i class="fas fa-stop-circle"></i> Stop
-        </button>
-        <button class="btn btn-analyze" id="analyzeBtn">
-          <i class="fas fa-brain"></i>&nbsp; Generate Intelligence Report
-        </button>
-        <button class="btn btn-util" id="copyBtn">
-          <i class="fas fa-copy"></i> Copy
-        </button>
-        <button class="btn btn-util" id="clearBtn">
-          <i class="fas fa-eraser"></i> Clear
-        </button>
-      </div>
-    </div>
-
-    <!-- RIGHT: SIDEBAR -->
-    <div class="sidebar">
-
-      <!-- AI OUTPUT -->
-      <div class="panel output-panel">
-        <div class="output-header">
-          <div class="output-label">
-            <i class="fas fa-bolt"></i>
-            AI Strategic Output
-          </div>
-          <div class="status-pill">
-            <div class="status-dot"></div>
-            Ready
-          </div>
-        </div>
-        <div class="output-body" id="output">
-          Your intelligence report will appear here after analysis...
-        </div>
-      </div>
-
-      <!-- MEMORY -->
-      <div class="panel memory-panel">
-        <div class="memory-header">
-          <div class="memory-label">
-            <i class="fas fa-layer-group"></i>
-            Session Memory
-          </div>
-          <button class="btn-trash" id="clearMemoryBtn" title="Clear all memory">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-        <div class="history-scroll" id="historyList">
-          <div class="empty-state" id="emptyState">
-            <div class="empty-icon"><i class="fas fa-inbox"></i></div>
-            No sessions recorded yet
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- STATS BAR -->
-  <div class="stats-bar">
-    <div class="stat-card" style="--stat-color: var(--accent-violet);">
-      <div class="stat-icon"><i class="fas fa-microphone"></i></div>
-      <div class="stat-content">
-        <div class="stat-value" id="sessionCount">0</div>
-        <div class="stat-label">Sessions</div>
-      </div>
-    </div>
-    <div class="stat-card" style="--stat-color: var(--accent-cyan);">
-      <div class="stat-icon" style="background:rgba(0,212,200,0.08);"><i class="fas fa-text-width"></i></div>
-      <div class="stat-content">
-        <div class="stat-value" id="wordCount">0</div>
-        <div class="stat-label">Words Captured</div>
-      </div>
-    </div>
-    <div class="stat-card" style="--stat-color: var(--accent-amber);">
-      <div class="stat-icon" style="background:rgba(245,158,11,0.08);color:var(--accent-amber);"><i class="fas fa-brain"></i></div>
-      <div class="stat-content">
-        <div class="stat-value" id="insightCount">0</div>
-        <div class="stat-label">Insights Generated</div>
-      </div>
-    </div>
-  </div>
-
 </div>
 
-<script>
-  let recognition, finalText = "", lastText = "", isListening = false;
-  let sessionCount = 0, insightCount = 0;
+<div id="app">
 
-  const inputBox = document.getElementById("inputBox");
-  const outputDiv = document.getElementById("output");
-  const historyList = document.getElementById("historyList");
-  const voiceIndicator = document.getElementById("voiceIndicator");
-  const emptyState = document.getElementById("emptyState");
-  const wordCountEl = document.getElementById("wordCount");
-  const sessionCountEl = document.getElementById("sessionCount");
-  const insightCountEl = document.getElementById("insightCount");
-
-  function updateWordCount() {
-    const words = inputBox.value.trim().split(/\s+/).filter(w => w.length > 0).length;
-    wordCountEl.textContent = words;
-  }
-
-  inputBox.addEventListener("input", updateWordCount);
-
-  function updateUI(active) {
-    if (active) {
-      voiceIndicator.classList.add("active");
-    } else {
-      voiceIndicator.classList.remove("active");
-    }
-  }
-
-  function startListening() {
-    if (isListening) return;
-    const lang = document.getElementById("languageSelect").value;
-    try {
-      recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.lang = lang;
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.start();
-      isListening = true;
-      updateUI(true);
-      recognition.onresult = (e) => {
-        let current = "";
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-          current += e.results[i][0].transcript;
-        }
-        if (current !== lastText) {
-          finalText += current.replace(lastText, "") + " ";
-          lastText = current;
-        }
-        inputBox.value = finalText;
-        updateWordCount();
-      };
-      recognition.onend = () => {
-        if (isListening) recognition.start();
-        else updateUI(false);
-      };
-    } catch(e) {
-      alert("Speech Recognition is not supported in this browser.");
-    }
-  }
-
-  function stopListening() {
-    isListening = false;
-    if (recognition) recognition.stop();
-    updateUI(false);
-
-    const text = inputBox.value.trim();
-    if (text) {
-      sessionCount++;
-      sessionCountEl.textContent = sessionCount;
-      addHistoryItem(text);
-    }
-  }
-
-  function addHistoryItem(text) {
-    if (emptyState) emptyState.remove();
-    const item = document.createElement("div");
-    item.className = "history-item";
-    const preview = text.length > 70 ? text.substring(0, 70) + "…" : text;
-    item.textContent = preview;
-    historyList.prepend(item);
-  }
-
-  const API_KEY = "AIzaSyC_NUs08meLRpzejk5pET7o1D30N2HOFwA";
-
-  async function analyzeText() {
-    const text = inputBox.value.trim();
-    if (!text) return;
-
-    outputDiv.classList.remove("has-content");
-    outputDiv.innerHTML = `
-      <div class="thinking">
-        <div class="shimmer-dots">
-          <div class="shimmer-dot"></div>
-          <div class="shimmer-dot"></div>
-          <div class="shimmer-dot"></div>
-        </div>
-        <span>Generating intelligence...</span>
+  <!-- TOPBAR (shared) -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-gem">
+        <svg viewBox="0 0 18 18" fill="none"><path d="M2 9 Q5 3.5 8 9 Q11 14.5 14 9 Q16.5 3.5 16 9" stroke="#d4af50" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
       </div>
-    `;
+      <div class="logo-name">UNO<em>Voice</em></div>
+    </div>
+    <div class="topbar-r">
+      <select class="lang-sel" id="langSel">
+        <option value="en-US">EN · English</option>
+        <option value="bn-BD">BN · বাংলা</option>
+      </select>
+      <div class="t-wrap" onclick="toggleMode()" id="themeWrap">
+        <div class="t-track on" id="tTrack"><div class="t-thumb"></div></div>
+        <span class="t-lbl" id="tLbl">Dark</span>
+      </div>
+    </div>
+  </div>
 
+  <!-- ════════════════════════════
+       SCREEN: HOME
+  ════════════════════════════ -->
+  <div class="screen active" id="s-home">
+    <div class="hero">
+      <div class="h-eyebrow">Cognitive Intelligence Suite</div>
+
+      <div class="orb-scene">
+        <div class="or or1"></div><div class="or or2"></div><div class="or or3"></div>
+        <div class="orb-btn" id="homeOrb" onclick="homeOrbToggle()">🎙</div>
+      </div>
+
+      <div class="wv off" id="homeWave">
+        <div class="wb"></div><div class="wb"></div><div class="wb"></div>
+        <div class="wb"></div><div class="wb"></div><div class="wb"></div>
+        <div class="wb"></div>
+      </div>
+
+      <div class="h-title">Speak <span class="it">freely,</span><br>think <span class="gh">deeply</span></div>
+      <p class="h-sub">Your voice distilled into structured intelligence — ideas, tasks, decisions, and summaries. Powered by Claude AI.</p>
+
+      <div class="cta-row" style="margin-bottom:0">
+        <button class="btn-gold" onclick="navTo('s-session-selector')">Start Session →</button>
+        <button class="btn-ghost" onclick="navTo('s-dashboard')">View Insights</button>
+      </div>
+
+      <div class="home-grid">
+        <div class="home-card" onclick="navTo('s-personal')">
+          <div class="hc-icon" style="background:var(--gold-a);">🧠</div>
+          <div>
+            <div class="hc-title">Personal Mode</div>
+            <div class="hc-sub">Ideas, tasks & decisions — solo thinking sessions</div>
+          </div>
+        </div>
+        <div class="home-card" onclick="navTo('s-meeting')">
+          <div class="hc-icon" style="background:var(--sage-a);">👥</div>
+          <div>
+            <div class="hc-title">Meeting Mode</div>
+            <div class="hc-sub">Multi-speaker intelligence with voiceprint ID</div>
+          </div>
+        </div>
+        <div class="home-card" onclick="navTo('s-dashboard')">
+          <div class="hc-icon" style="background:var(--blue-a);">📊</div>
+          <div>
+            <div class="hc-title">Insight Dashboard</div>
+            <div class="hc-sub">Searchable memory of all sessions & summaries</div>
+          </div>
+        </div>
+        <div class="home-card" onclick="navTo('s-profile')">
+          <div class="hc-icon" style="background:var(--rose-a);">🎤</div>
+          <div>
+            <div class="hc-title">Profile & Voiceprint</div>
+            <div class="hc-sub">One-time setup with voice enrollment</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feat-row">
+        <div class="fpill"><div class="fp-d" style="background:var(--gold)"></div>Real-time Transcript</div>
+        <div class="fpill"><div class="fp-d" style="background:var(--sage)"></div>AI Analysis</div>
+        <div class="fpill"><div class="fp-d" style="background:var(--rose)"></div>Privacy First</div>
+        <div class="fpill"><div class="fp-d" style="background:var(--blue)"></div>No Auto-execution</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       SCREEN: PROFILE SETUP
+  ════════════════════════════ -->
+  <div class="screen" id="s-profile">
+    <div style="max-width:580px;margin:0 auto;padding:20px 0 40px">
+      <div class="prog-dots" style="margin-bottom:32px">
+        <div class="pd on" id="pd1"></div>
+        <div class="pd" id="pd2"></div>
+        <div class="pd" id="pd3"></div>
+      </div>
+
+      <!-- Step 1: Name & prefs -->
+      <div class="setup-step active" id="pstep1">
+        <div>
+          <div class="step-badge">Step 1 of 3 · Profile</div>
+          <div class="step-title">Hello. Let's set up<br>your <em>intelligence</em> profile.</div>
+        </div>
+        <p class="step-desc">This is a one-time setup. Your preferences help UNO Voice personalize insights and recognize your voice automatically.</p>
+        <div class="card card-sm" style="display:flex;flex-direction:column;gap:18px">
+          <div class="inp-row">
+            <div class="inp-group">
+              <div class="inp-label">First Name</div>
+              <input class="inp" type="text" placeholder="Your name..." id="userName">
+            </div>
+            <div class="inp-group">
+              <div class="inp-label">Role / Title</div>
+              <input class="inp" type="text" placeholder="e.g. Product Lead..." id="userRole">
+            </div>
+          </div>
+          <div class="inp-group">
+            <div class="inp-label">Primary Language</div>
+            <select class="inp" id="prefLang" style="font-style:normal;cursor:pointer">
+              <option value="en-US">English (US)</option>
+              <option value="bn-BD">বাংলা (Bangladesh)</option>
+            </select>
+          </div>
+          <div class="inp-group">
+            <div class="inp-label">Focus Areas</div>
+            <input class="inp" type="text" placeholder="e.g. Strategy, Product, Research..." id="userFocus">
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-outline" onclick="navTo('s-home')">← Back</button>
+          <button class="btn-primary" onclick="profileNext(1)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Voice Enrollment -->
+      <div class="setup-step" id="pstep2">
+        <div>
+          <div class="step-badge">Step 2 of 3 · Voice Enrollment</div>
+          <div class="step-title">Create your<br><em>voiceprint</em> identity.</div>
+        </div>
+        <p class="step-desc">Record 5–10 seconds of natural speech. UNO Voice will create a unique voiceprint so you're automatically identified in future sessions — no repeat setup needed.</p>
+        <div class="card enroll-area" id="enrollArea">
+          <div class="enroll-orb" id="enrollOrb" onclick="enrollToggle()">🎙</div>
+          <div>
+            <div class="enroll-title" id="enrollTitle">Tap to begin recording</div>
+            <div class="enroll-desc">Say something naturally — read a sentence,<br>describe your day, or just speak freely.</div>
+          </div>
+          <div style="width:100%">
+            <div class="enroll-prog"><div class="enroll-fill" id="enrollFill"></div></div>
+          </div>
+          <div class="enroll-status" id="enrollStatus">0 / 10 seconds recorded</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-outline" onclick="profileBack(2)">← Back</button>
+          <button class="btn-primary" id="enrollNext" onclick="profileNext(2)" disabled style="opacity:.4;cursor:not-allowed">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Complete -->
+      <div class="setup-step" id="pstep3">
+        <div style="text-align:center;padding:20px 0">
+          <div style="font-size:52px;margin-bottom:20px">✦</div>
+          <div class="step-title" style="text-align:center">Profile <em>complete.</em></div>
+          <p class="step-desc" style="text-align:center;margin-top:12px">Your voiceprint has been enrolled. UNO Voice will automatically recognize you in every session going forward.</p>
+        </div>
+        <div class="card card-sm" style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--b0)">
+            <span style="font-size:16px">✔</span>
+            <span style="font-family:var(--grotesk);font-size:13px;font-weight:500;color:var(--tx)">Voice identity enrolled</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--b0)">
+            <span style="font-size:16px">✔</span>
+            <span style="font-family:var(--grotesk);font-size:13px;font-weight:500;color:var(--tx)">Auto-recognition active</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:8px 0">
+            <span style="font-size:16px">✔</span>
+            <span style="font-family:var(--grotesk);font-size:13px;font-weight:500;color:var(--tx)">Privacy: no raw audio stored</span>
+          </div>
+        </div>
+        <div class="btn-row" style="justify-content:center">
+          <button class="btn-primary" onclick="navTo('s-session-selector')">Start First Session →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       SCREEN: SESSION SELECTOR
+  ════════════════════════════ -->
+  <div class="screen" id="s-session-selector">
+    <div style="max-width:640px;margin:0 auto;padding:20px 0 40px">
+      <div class="step-badge" style="margin-bottom:18px">Choose Mode</div>
+      <div class="step-title" style="margin-bottom:10px">How would you like<br>to <em>capture</em> today?</div>
+      <p class="step-desc" style="margin-bottom:32px">Personal for solo thinking. Meeting for multi-speaker sessions with automatic speaker ID.</p>
+      <div class="mode-grid">
+        <div class="mode-card mode-personal" onclick="navTo('s-personal')">
+          <div class="mode-icon" style="background:var(--gold-a)">🧠</div>
+          <div class="mode-title">Personal Session</div>
+          <p class="mode-desc">Capture your ideas, tasks, plans and decisions. AI extracts structured insights from your natural speech.</p>
+          <div class="mode-tag" style="background:var(--gold-a);color:var(--gold);border:1px solid rgba(212,175,80,.2)">Solo · Private</div>
+        </div>
+        <div class="mode-card mode-meeting" onclick="navTo('s-meeting')">
+          <div class="mode-icon" style="background:var(--sage-a)">👥</div>
+          <div class="mode-title">Meeting Session</div>
+          <p class="mode-desc">Multi-speaker intelligence. Detect who said what. Extract decisions and action items from meetings.</p>
+          <div class="mode-tag" style="background:var(--sage-a);color:var(--sage);border:1px solid rgba(122,158,142,.2)">Team · Collaborative</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       SCREEN: PERSONAL SESSION
+  ════════════════════════════ -->
+  <div class="screen" id="s-personal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div class="step-badge">Personal Session</div>
+      <button class="btn-outline" onclick="navTo('s-session-selector')" style="font-size:11px;padding:8px 16px">← Modes</button>
+    </div>
+    <div class="session-layout">
+      <!-- LEFT -->
+      <div class="sess-left">
+        <!-- Mic -->
+        <div class="card mic-panel">
+          <div class="rpill" id="pRecPill"><div class="rbt"></div> Live</div>
+          <div class="session-orb">
+            <div class="so-ring so-r1"></div><div class="so-ring so-r2"></div>
+            <button class="mic-big" id="pMicBtn" onclick="togglePersonal()">🎙</button>
+          </div>
+          <div class="dw-row off" id="pWave">
+            <div class="dw"></div><div class="dw"></div><div class="dw"></div>
+            <div class="dw"></div><div class="dw"></div><div class="dw"></div>
+            <div class="dw"></div>
+          </div>
+          <div class="mic-state" id="pMicState">Tap to begin session</div>
+        </div>
+        <!-- Transcript -->
+        <div class="card" style="padding-bottom:22px">
+          <div class="slabel"><div class="slabel-dot" style="background:var(--sage)"></div>Live Transcript<div class="slabel-line"></div></div>
+          <textarea class="txarea" id="pTxBox" placeholder="Begin speaking — ideas, tasks, plans, anything..."></textarea>
+          <div class="act-grid">
+            <button class="abtn abtn-main" onclick="analyzePersonal()">⚡ &nbsp;Generate Insights</button>
+            <button class="abtn abtn-sec" onclick="copyTx('pTxBox')">📋 Copy</button>
+            <button class="abtn abtn-sec abtn-del" onclick="clearTx('pTxBox', 'p')">✕ Clear</button>
+            <button class="abtn abtn-sec abtn-sage" onclick="navTo('s-approval')">✅ Review Actions</button>
+          </div>
+        </div>
+      </div>
+      <!-- RIGHT -->
+      <div class="sess-right">
+        <!-- Insight Categories -->
+        <div class="card">
+          <div class="slabel"><div class="slabel-dot" style="background:var(--gold)"></div>Extracted Intelligence<div class="slabel-line"></div></div>
+          <div class="insight-grid" id="pInsightGrid">
+            <div class="insight-cat">
+              <div class="ic-left"><div class="ic-emoji">🧠</div><div class="ic-count" id="ic-ideas-n">0</div></div>
+              <div class="ic-body">
+                <div class="ic-title">Ideas</div>
+                <div class="ic-items" id="ic-ideas"><div class="ic-empty">No ideas detected yet</div></div>
+              </div>
+            </div>
+            <div class="insight-cat">
+              <div class="ic-left"><div class="ic-emoji">✅</div><div class="ic-count" id="ic-tasks-n">0</div></div>
+              <div class="ic-body">
+                <div class="ic-title">Tasks</div>
+                <div class="ic-items" id="ic-tasks"><div class="ic-empty">No tasks detected yet</div></div>
+              </div>
+            </div>
+            <div class="insight-cat">
+              <div class="ic-left"><div class="ic-emoji">📌</div><div class="ic-count" id="ic-dec-n">0</div></div>
+              <div class="ic-body">
+                <div class="ic-title">Decisions</div>
+                <div class="ic-items" id="ic-decisions"><div class="ic-empty">No decisions yet</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- AI Summary -->
+        <div class="card">
+          <div class="out-hdr">
+            <div class="slabel" style="margin:0"><div class="slabel-dot" style="background:var(--rose)"></div>AI Summary<div class="slabel-line"></div></div>
+            <div class="sbadge" id="pBadge">Ready</div>
+          </div>
+          <div class="out-body" id="pOutBody">Your strategic summary will appear here after analysis...</div>
+        </div>
+        <!-- Memory -->
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div class="slabel" style="margin:0"><div class="slabel-dot" style="background:var(--tx3)"></div>Session Memory<div class="slabel-line"></div></div>
+            <button onclick="clearHistory('pHistory')" style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid var(--b0);border-radius:8px;cursor:pointer;font-size:10px;color:var(--tx3);transition:.2s" onmouseover="this.style.color='var(--rose)'" onmouseout="this.style.color='var(--tx3)'">✕</button>
+          </div>
+          <div class="h-scroll" id="pHistory">
+            <div class="empty-state" id="pHistEmpty"><div class="es-icon">◻</div>No sessions yet</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       SCREEN: MEETING SESSION
+  ════════════════════════════ -->
+  <div class="screen" id="s-meeting">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div class="step-badge" style="background:var(--sage-a);color:var(--sage);border-color:rgba(122,158,142,.2)">Meeting Session · Live</div>
+      <button class="btn-outline" onclick="navTo('s-session-selector')" style="font-size:11px;padding:8px 16px">← Modes</button>
+    </div>
+    <div class="meeting-layout">
+      <!-- LEFT: speakers + mic -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card mic-panel">
+          <div class="rpill" id="mRecPill"><div class="rbt"></div> Recording</div>
+          <div class="session-orb">
+            <div class="so-ring so-r1"></div><div class="so-ring so-r2"></div>
+            <button class="mic-big" id="mMicBtn" onclick="toggleMeeting()">🎙</button>
+          </div>
+          <div class="dw-row off" id="mWave">
+            <div class="dw"></div><div class="dw"></div><div class="dw"></div>
+            <div class="dw"></div><div class="dw"></div><div class="dw"></div>
+            <div class="dw"></div>
+          </div>
+          <div class="mic-state" id="mMicState">Tap to begin meeting capture</div>
+        </div>
+        <!-- Speakers -->
+        <div class="card">
+          <div class="slabel"><div class="slabel-dot" style="background:var(--sage)"></div>Participants<div class="slabel-line"></div></div>
+          <div class="speaker-list" id="speakerList">
+            <div class="speaker-card">
+              <div class="spk-avatar" style="background:var(--gold-a);color:var(--gold)">Y</div>
+              <div class="spk-info">
+                <div class="spk-name">You</div>
+                <div class="spk-role">Voiceprint enrolled</div>
+              </div>
+              <div class="spk-indicator" id="spk-you"></div>
+            </div>
+            <div class="speaker-card">
+              <div class="spk-avatar" style="background:var(--sage-a);color:var(--sage)">A</div>
+              <div class="spk-info">
+                <div class="spk-name">Speaker A</div>
+                <div class="spk-role">Unregistered voice</div>
+              </div>
+              <div class="spk-indicator" id="spk-a"></div>
+            </div>
+            <div class="speaker-card">
+              <div class="spk-avatar" style="background:var(--blue-a);color:var(--blue)">B</div>
+              <div class="spk-info">
+                <div class="spk-name">Speaker B</div>
+                <div class="spk-role">Unregistered voice</div>
+              </div>
+              <div class="spk-indicator" id="spk-b"></div>
+            </div>
+            <div class="add-speaker-btn" onclick="addSpeaker()">＋ Late join / Add participant</div>
+          </div>
+        </div>
+        <div class="act-grid" style="margin-top:0">
+          <button class="abtn abtn-main" onclick="analyzeMeeting()" style="grid-column:span 2">⚡ &nbsp;Extract Meeting Intelligence</button>
+          <button class="abtn abtn-sec abtn-sage" onclick="navTo('s-approval')">✅ Review Actions</button>
+          <button class="abtn abtn-sec abtn-del" onclick="clearTx('mTxBox','m')">✕ Clear</button>
+        </div>
+      </div>
+      <!-- RIGHT: live feed + summary -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card" style="padding:22px">
+          <div class="slabel"><div class="slabel-dot" style="background:var(--rose)"></div>Live Meeting Feed<div class="slabel-line"></div></div>
+          <div class="meeting-feed" id="meetFeed">
+            <div class="empty-state" style="padding:30px 10px"><div class="es-icon">💬</div>Meeting transcript will appear here...</div>
+          </div>
+          <textarea class="txarea" id="mTxBox" placeholder="Meeting audio transcript..." style="min-height:80px;margin-top:12px;display:none"></textarea>
+        </div>
+        <div class="card">
+          <div class="out-hdr">
+            <div class="slabel" style="margin:0"><div class="slabel-dot" style="background:var(--gold)"></div>Meeting Intelligence<div class="slabel-line"></div></div>
+            <div class="sbadge" id="mBadge">Standby</div>
+          </div>
+          <div class="out-body" id="mOutBody">Action items, decisions & follow-ups will appear after analysis...</div>
+        </div>
+        <div class="card">
+          <div class="slabel"><div class="slabel-dot" style="background:var(--tx3)"></div>Late Join Notice<div class="slabel-line"></div></div>
+          <div style="background:var(--s1);border:1px solid var(--b0);border-radius:var(--rs);padding:13px 15px">
+            <div style="font-family:var(--grotesk);font-size:11.5px;color:var(--tx2);line-height:1.65;font-weight:400">
+              👋 <strong style="color:var(--tx)">Late joiners</strong> are assigned as <em>"Unknown User X"</em>. They can submit a voice sample later — the system will retroactively match and update their identity across the session transcript.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       SCREEN: INSIGHT DASHBOARD
+  ════════════════════════════ -->
+  <div class="screen" id="s-dashboard">
+    <div class="dash-toprow">
+      <div class="dash-title">Your <em>Intelligence</em><br>Archive</div>
+      <div class="filter-row">
+        <div class="filter-chip active" onclick="setFilter(this,'all')">All</div>
+        <div class="filter-chip" onclick="setFilter(this,'ideas')">🧠 Ideas</div>
+        <div class="filter-chip" onclick="setFilter(this,'tasks')">✅ Tasks</div>
+        <div class="filter-chip" onclick="setFilter(this,'decisions')">📌 Decisions</div>
+      </div>
+    </div>
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search across all sessions..." id="searchInp" oninput="filterInsights()">
+    </div>
+    <div class="dash-main-grid">
+      <div class="dash-insights-col" id="insightEntries">
+        <!-- populated by JS -->
+        <div class="empty-state" id="dashEmpty" style="padding:40px"><div class="es-icon" style="font-size:22px">📭</div>No sessions recorded yet. Start a session to build your intelligence archive.</div>
+      </div>
+      <div class="dash-side-col">
+        <div class="stats-mini">
+          <div class="smc"><div class="smc-val" id="ds-ses">0</div><div class="smc-lbl">Sessions</div></div>
+          <div class="smc"><div class="smc-val" id="ds-ins">0</div><div class="smc-lbl">Insights</div></div>
+          <div class="smc"><div class="smc-val" id="ds-tasks">0</div><div class="smc-lbl">Tasks</div></div>
+          <div class="smc"><div class="smc-val" id="ds-words">0</div><div class="smc-lbl">Words</div></div>
+        </div>
+        <div class="daily-summary">
+          <div class="ds-title">Daily Intelligence Summary</div>
+          <div class="ds-item"><div class="ds-dot" style="background:var(--gold)"></div><div class="ds-txt" id="ds-daily">Run your first session to see your daily summary here.</div></div>
+        </div>
+        <div class="card card-sm">
+          <div class="slabel"><div class="slabel-dot" style="background:var(--tx3)"></div>Pending Actions<div class="slabel-line"></div></div>
+          <div id="pendingActions">
+            <div class="empty-state"><div class="es-icon">🗂</div>No pending approvals</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════
+       SCREEN: ACTION APPROVAL
+  ════════════════════════════ -->
+  <div class="screen" id="s-approval">
+    <div style="margin-bottom:24px">
+      <div class="step-badge" style="margin-bottom:12px">Action Approval Layer</div>
+      <div class="step-title" style="font-size:1.7rem">Review before<br><em>anything</em> executes.</div>
+      <p class="step-desc" style="margin-top:10px">UNO Voice never auto-executes. Every suggestion requires your explicit approval.</p>
+    </div>
+    <div class="rule-notice">
+      <span style="font-size:16px">🔒</span>
+      <span><strong style="color:var(--tx)">Nothing runs automatically.</strong> All emails, calendar entries and tasks require your explicit approval below.</span>
+    </div>
+    <div class="approval-list" id="approvalList">
+      <!-- Sample approval cards -->
+      <div class="approval-card" id="acard1">
+        <div class="ac-header">
+          <div class="ac-icon" style="background:var(--blue-a)">📧</div>
+          <div>
+            <div class="ac-title">Draft Email</div>
+            <div class="ac-sub">To: team@company.com · Re: Q3 Strategy Review</div>
+          </div>
+        </div>
+        <div class="ac-preview">
+          Hi team, following our discussion today, I wanted to summarize the key decisions we made regarding the Q3 strategy. We agreed to prioritize the mobile product and defer the enterprise expansion to Q4...
+        </div>
+        <div class="ac-actions">
+          <button class="btn-outline" style="font-size:11px;padding:9px 18px" onclick="dismissCard('acard1')">✕ Dismiss</button>
+          <button class="btn-outline" style="font-size:11px;padding:9px 18px;border-color:var(--b1)">✏ Edit</button>
+          <button class="btn-primary" style="font-size:11px;padding:9px 20px" onclick="approveCard('acard1')">✓ Approve & Send</button>
+        </div>
+      </div>
+      <div class="approval-card" id="acard2">
+        <div class="ac-header">
+          <div class="ac-icon" style="background:var(--gold-a)">📅</div>
+          <div>
+            <div class="ac-title">Calendar Event</div>
+            <div class="ac-sub">Tomorrow, 10:00 AM · Mobile Strategy Sync · 45 min</div>
+          </div>
+        </div>
+        <div class="ac-preview">
+          Suggested meeting: "Mobile Product Strategy Review" based on your session where you mentioned scheduling a follow-up with the product team next morning.
+        </div>
+        <div class="ac-actions">
+          <button class="btn-outline" style="font-size:11px;padding:9px 18px" onclick="dismissCard('acard2')">✕ Dismiss</button>
+          <button class="btn-primary" style="font-size:11px;padding:9px 20px" onclick="approveCard('acard2')">✓ Add to Calendar</button>
+        </div>
+      </div>
+      <div class="approval-card" id="acard3">
+        <div class="ac-header">
+          <div class="ac-icon" style="background:var(--sage-a)">☑</div>
+          <div>
+            <div class="ac-title">Create Task</div>
+            <div class="ac-sub">In: Project Board · Priority: High</div>
+          </div>
+        </div>
+        <div class="ac-preview">
+          "Finalize mobile product roadmap and share with stakeholders by Friday" — extracted from your personal session transcript.
+        </div>
+        <div class="ac-actions">
+          <button class="btn-outline" style="font-size:11px;padding:9px 18px" onclick="dismissCard('acard3')">✕ Dismiss</button>
+          <button class="btn-primary" style="font-size:11px;padding:9px 20px" onclick="approveCard('acard3')">✓ Create Task</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+/* ════════════════════════════════════════
+   GLOBAL STATE
+════════════════════════════════════════ */
+let dark = true;
+let pIsRec = false, mIsRec = false, homeRecOn = false, enrollRecOn = false;
+let pRec = null, mRec = null, homeRec = null, enrollRec = null;
+let pFinalTxt = '', mFinalTxt = '';
+let enrollSecs = 0, enrollTimer = null;
+let sessions = 0, totalInsights = 0, totalTasks = 0, totalWords = 0;
+let insightStore = [];
+let pendingList = [];
+let profileSetupStep = 1;
+let currentFilter = 'all';
+
+/* ════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════ */
+function navTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('active'); }
+  // update nav
+  document.querySelectorAll('.bnav-item').forEach(b => {
+    b.classList.toggle('active', b.dataset.screen === id);
+  });
+  // scroll to top
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ════════════════════════════════════════
+   THEME TOGGLE
+════════════════════════════════════════ */
+function toggleMode() {
+  dark = !dark;
+  document.body.className = dark ? '' : 'light';
+  document.getElementById('tTrack').className = 't-track' + (dark?' on':'');
+  document.getElementById('tLbl').textContent = dark ? 'Dark' : 'Light';
+}
+
+/* ════════════════════════════════════════
+   HOME ORB
+════════════════════════════════════════ */
+function homeOrbToggle() {
+  if (!homeRecOn) {
+    homeRecOn = true;
+    document.getElementById('homeOrb').classList.add('rec');
+    document.getElementById('homeOrb').textContent = '⏹';
+    document.getElementById('homeWave').classList.remove('off');
     try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `Summarize this into one professional insight: ${text}`
-            }]
-          }]
-        })
-      });
-      const data = await res.json();
-      const result = data.candidates?.[0]?.content?.parts?.[0]?.text || "Analysis complete.";
-      outputDiv.innerHTML = '';
-      outputDiv.textContent = result;
-      outputDiv.classList.add("has-content");
-      insightCount++;
-      insightCountEl.textContent = insightCount;
-    } catch(err) {
-      outputDiv.innerHTML = '';
-      outputDiv.textContent = "API limit reached or network error. Please try again.";
+      homeRec = new (window.SpeechRecognition||window.webkitSpeechRecognition)();
+      homeRec.continuous = true; homeRec.interimResults = false;
+      homeRec.start();
+      homeRec.onend = ()=>{ if(homeRecOn){ try{homeRec.start()}catch(e){} } };
+    } catch(e){}
+  } else {
+    homeRecOn = false;
+    document.getElementById('homeOrb').classList.remove('rec');
+    document.getElementById('homeOrb').textContent = '🎙';
+    document.getElementById('homeWave').classList.add('off');
+    if(homeRec){try{homeRec.stop()}catch(e){}}
+  }
+}
+
+/* ════════════════════════════════════════
+   PROFILE SETUP
+════════════════════════════════════════ */
+function profileNext(step) {
+  if (step === 1) {
+    document.getElementById('pstep1').classList.remove('active');
+    document.getElementById('pstep2').classList.add('active');
+    setProgDot(2);
+  } else if (step === 2 && enrollSecs >= 5) {
+    if (enrollRecOn) enrollToggle();
+    document.getElementById('pstep2').classList.remove('active');
+    document.getElementById('pstep3').classList.add('active');
+    setProgDot(3);
+  }
+}
+function profileBack(step) {
+  if (step === 2) {
+    if (enrollRecOn) enrollToggle();
+    document.getElementById('pstep2').classList.remove('active');
+    document.getElementById('pstep1').classList.add('active');
+    setProgDot(1);
+  }
+}
+function setProgDot(n) {
+  for(let i=1;i<=3;i++){
+    const el = document.getElementById('pd'+i);
+    el.classList.toggle('on', i<=n);
+  }
+}
+
+/* voice enrollment */
+function enrollToggle() {
+  if (!enrollRecOn) {
+    enrollRecOn = true;
+    document.getElementById('enrollOrb').classList.add('rec');
+    document.getElementById('enrollTitle').textContent = '● Recording your voice...';
+    enrollSecs = 0;
+    updateEnrollProgress();
+    enrollTimer = setInterval(()=>{
+      enrollSecs = Math.min(enrollSecs+1, 10);
+      updateEnrollProgress();
+      if (enrollSecs >= 10) enrollToggle();
+    }, 1000);
+    try {
+      enrollRec = new (window.SpeechRecognition||window.webkitSpeechRecognition)();
+      enrollRec.continuous = true; enrollRec.interimResults = false;
+      enrollRec.start();
+      enrollRec.onend = ()=>{ if(enrollRecOn){try{enrollRec.start()}catch(e){}} };
+    } catch(e){}
+  } else {
+    enrollRecOn = false;
+    clearInterval(enrollTimer);
+    document.getElementById('enrollOrb').classList.remove('rec');
+    if(enrollRec){try{enrollRec.stop()}catch(e){}}
+    if (enrollSecs >= 5) {
+      document.getElementById('enrollTitle').textContent = '✔ Voiceprint captured!';
+      document.getElementById('enrollNext').disabled = false;
+      document.getElementById('enrollNext').style.opacity = '1';
+      document.getElementById('enrollNext').style.cursor = 'pointer';
+    } else {
+      document.getElementById('enrollTitle').textContent = 'Please record at least 5 seconds';
     }
   }
+}
+function updateEnrollProgress() {
+  const pct = (enrollSecs/10)*100;
+  document.getElementById('enrollFill').style.width = pct+'%';
+  document.getElementById('enrollStatus').textContent = enrollSecs+' / 10 seconds recorded';
+  if (enrollSecs>=5 && enrollRecOn) {
+    document.getElementById('enrollStatus').textContent = enrollSecs+' sec — good! You can stop now.';
+  }
+}
 
-  document.getElementById("startBtn").onclick = startListening;
-  document.getElementById("stopBtn").onclick = stopListening;
-  document.getElementById("analyzeBtn").onclick = analyzeText;
+/* ════════════════════════════════════════
+   PERSONAL SESSION
+════════════════════════════════════════ */
+function togglePersonal() {
+  pIsRec ? stopPersonal() : startPersonal();
+}
+function startPersonal() {
+  const lang = document.getElementById('langSel').value;
+  try {
+    pRec = new (window.SpeechRecognition||window.webkitSpeechRecognition)();
+    pRec.lang = lang; pRec.continuous = true; pRec.interimResults = true;
+    pRec.onresult = e => {
+      let interim='';
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        if(e.results[i].isFinal) pFinalTxt += e.results[i][0].transcript+' ';
+        else interim = e.results[i][0].transcript;
+      }
+      const box = document.getElementById('pTxBox');
+      const d = (pFinalTxt+interim).trim();
+      box.value = d;
+      box.classList.toggle('has', d.length>0);
+      updateGlobalWords(d);
+    };
+    pRec.onend = ()=>{ if(pIsRec){try{pRec.start()}catch(e){}} };
+    pRec.onerror = e=>{ if(e.error==='not-allowed'){alert('Allow microphone access.');stopPersonal();} };
+    pRec.start(); pIsRec = true;
+    document.getElementById('pMicBtn').classList.add('rec');
+    document.getElementById('pMicBtn').textContent = '⏹';
+    document.getElementById('pWave').classList.remove('off');
+    document.getElementById('pRecPill').classList.add('on');
+    document.getElementById('pMicState').textContent = 'Recording — tap to stop';
+    document.getElementById('pTxBox').classList.add('live');
+  } catch(e){ alert('Speech recognition requires Google Chrome.'); }
+}
+function stopPersonal() {
+  pIsRec = false;
+  if(pRec){try{pRec.stop()}catch(e){}}
+  document.getElementById('pMicBtn').classList.remove('rec');
+  document.getElementById('pMicBtn').textContent = '🎙';
+  document.getElementById('pWave').classList.add('off');
+  document.getElementById('pRecPill').classList.remove('on');
+  document.getElementById('pMicState').textContent = 'Tap to begin session';
+  document.getElementById('pTxBox').classList.remove('live');
+  const txt = pFinalTxt.trim();
+  if(txt){ sessions++; addHistory('pHistory','pHistEmpty',txt); updateDashStats(); }
+}
 
-  document.getElementById("clearBtn").onclick = () => {
-    inputBox.value = "";
-    finalText = "";
-    updateWordCount();
-  };
+async function analyzePersonal() {
+  const txt = document.getElementById('pTxBox').value.trim();
+  if(!txt) return;
+  const out = document.getElementById('pOutBody');
+  const badge = document.getElementById('pBadge');
+  setThinking(out, badge, 'Analyzing...');
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        messages:[{role:'user',content:`You are a strategic intelligence analyst. Analyze this spoken input and:
+1. Extract a list of IDEAS (creative thoughts, concepts)
+2. Extract TASKS (things to do, action items)  
+3. Extract DECISIONS (things decided upon)
+4. Write a 2-sentence SUMMARY
 
-  document.getElementById("copyBtn").onclick = () => {
-    if (!inputBox.value.trim()) return;
-    navigator.clipboard.writeText(inputBox.value).then(() => {
-      const btn = document.getElementById("copyBtn");
-      const orig = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-      btn.style.color = 'var(--accent-cyan)';
-      btn.style.borderColor = 'rgba(0,212,200,0.3)';
-      setTimeout(() => {
-        btn.innerHTML = orig;
-        btn.style.color = '';
-        btn.style.borderColor = '';
-      }, 1800);
+Respond ONLY in this exact JSON format, no markdown:
+{"ideas":["..."],"tasks":["..."],"decisions":["..."],"summary":"..."}
+
+Input: "${txt}"`}]
+      })
     });
-  };
+    const data = await res.json();
+    const raw = data?.content?.[0]?.text || '{}';
+    let parsed;
+    try { parsed = JSON.parse(raw.replace(/```json|```/g,'')); }
+    catch(e){ parsed={ideas:[],tasks:[],decisions:[],summary:raw}; }
 
-  document.getElementById("clearMemoryBtn").onclick = () => {
-    if (confirm("Clear all session memory?")) {
-      historyList.innerHTML = '';
-      const es = document.createElement('div');
-      es.className = 'empty-state';
-      es.id = 'emptyState';
-      es.innerHTML = '<div class="empty-icon"><i class="fas fa-inbox"></i></div>No sessions recorded yet';
-      historyList.appendChild(es);
-    }
-  };
+    renderInsightCats(parsed);
+    out.textContent = parsed.summary || 'Analysis complete.';
+    out.classList.add('has');
+    badge.textContent = 'Done ✓';
+    badge.style.cssText='color:var(--sage);background:var(--sage-a);border-color:rgba(122,158,142,.22)';
+    totalInsights += (parsed.ideas||[]).length+(parsed.decisions||[]).length;
+    totalTasks += (parsed.tasks||[]).length;
+
+    // add to insight store
+    insightStore.unshift({
+      type:'personal', time:new Date().toLocaleDateString(),
+      summary:parsed.summary, ideas:parsed.ideas, tasks:parsed.tasks, decisions:parsed.decisions
+    });
+    updateDashStats(); renderDashInsights();
+    pendingList.push({type:'task',txt:parsed.tasks[0]||'Follow up on session'});
+    updatePendingApprovals();
+
+  } catch(e){
+    out.textContent='Network error. Please try again.';
+    badge.textContent='Error'; badge.style.cssText='color:var(--rose);background:var(--rose-a);border-color:rgba(201,107,114,.22)';
+  }
+}
+
+function renderInsightCats(parsed) {
+  renderIcItems('ic-ideas','ic-ideas-n', parsed.ideas||[]);
+  renderIcItems('ic-tasks','ic-tasks-n', parsed.tasks||[]);
+  renderIcItems('ic-decisions','ic-dec-n', parsed.decisions||[]);
+}
+function renderIcItems(containerId, countId, arr) {
+  const el = document.getElementById(containerId);
+  const cn = document.getElementById(countId);
+  if(!arr.length){ el.innerHTML='<div class="ic-empty">None detected</div>'; cn.textContent='0'; return; }
+  cn.textContent = arr.length;
+  el.innerHTML = arr.map(t=>`<div class="ic-item">${t}</div>`).join('');
+}
+
+/* ════════════════════════════════════════
+   MEETING SESSION
+════════════════════════════════════════ */
+const speakers = ['You','Speaker A','Speaker B'];
+const spkColors = ['var(--gold)','var(--sage)','var(--blue)'];
+const spkBg = ['var(--gold-a)','var(--sage-a)','var(--blue-a)'];
+let lastSpk = -1;
+
+function toggleMeeting() {
+  mIsRec ? stopMeeting() : startMeeting();
+}
+function startMeeting() {
+  const lang = document.getElementById('langSel').value;
+  try {
+    mRec = new (window.SpeechRecognition||window.webkitSpeechRecognition)();
+    mRec.lang = lang; mRec.continuous = true; mRec.interimResults = true;
+    mRec.onresult = e => {
+      let newTxt = '';
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        if(e.results[i].isFinal){ newTxt += e.results[i][0].transcript; mFinalTxt+=e.results[i][0].transcript+' '; }
+      }
+      if(newTxt.trim()){ addMeetingFeedMessage(newTxt.trim()); }
+    };
+    mRec.onend = ()=>{ if(mIsRec){try{mRec.start()}catch(e){}} };
+    mRec.start(); mIsRec = true;
+    document.getElementById('mMicBtn').classList.add('rec');
+    document.getElementById('mMicBtn').textContent = '⏹';
+    document.getElementById('mWave').classList.remove('off');
+    document.getElementById('mRecPill').classList.add('on');
+    document.getElementById('mMicState').textContent = 'Capturing — tap to stop';
+    // clear empty state
+    const feed = document.getElementById('meetFeed');
+    const es = feed.querySelector('.empty-state');
+    if(es) es.remove();
+    // simulate speaker activity
+    simulateSpeakers();
+  } catch(e){ alert('Speech recognition requires Google Chrome.'); }
+}
+function stopMeeting() {
+  mIsRec = false;
+  if(mRec){try{mRec.stop()}catch(e){}}
+  document.getElementById('mMicBtn').classList.remove('rec');
+  document.getElementById('mMicBtn').textContent = '🎙';
+  document.getElementById('mWave').classList.add('off');
+  document.getElementById('mRecPill').classList.remove('on');
+  document.getElementById('mMicState').textContent = 'Tap to begin meeting capture';
+  ['spk-you','spk-a','spk-b'].forEach(id=>{ document.getElementById(id).classList.remove('active'); });
+  if(mFinalTxt.trim()){ sessions++; addHistory('pHistory','pHistEmpty',mFinalTxt.trim()); updateDashStats(); }
+}
+
+function addMeetingFeedMessage(txt) {
+  const spkIdx = (lastSpk+1) % 3; lastSpk = spkIdx;
+  const feed = document.getElementById('meetFeed');
+  const msg = document.createElement('div');
+  msg.className = 'feed-msg';
+  msg.innerHTML = `
+    <div class="feed-avatar" style="background:${spkBg[spkIdx]};color:${spkColors[spkIdx]}">${speakers[spkIdx][0]}</div>
+    <div class="feed-bubble">
+      <div class="feed-who" style="color:${spkColors[spkIdx]}">${speakers[spkIdx]}</div>
+      <div class="feed-txt">${txt}</div>
+    </div>`;
+  feed.appendChild(msg);
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function simulateSpeakers() {
+  if(!mIsRec) return;
+  const indicators = ['spk-you','spk-a','spk-b'];
+  indicators.forEach(id=>{ document.getElementById(id)?.classList.remove('active'); });
+  const active = indicators[Math.floor(Math.random()*3)];
+  document.getElementById(active)?.classList.add('active');
+  setTimeout(simulateSpeakers, 2000+Math.random()*3000);
+}
+
+function addSpeaker() {
+  const name = prompt('Enter late joiner name or leave blank for auto-label:') || ('Unknown User '+Math.floor(Math.random()*10+4));
+  const list = document.getElementById('speakerList');
+  const card = document.createElement('div');
+  card.className = 'speaker-card';
+  const colors=['var(--rose)','var(--blue)','var(--tx2)'];
+  const c=colors[Math.floor(Math.random()*3)];
+  card.innerHTML=`
+    <div class="spk-avatar" style="background:rgba(0,0,0,.1);color:${c}">${name[0]}</div>
+    <div class="spk-info"><div class="spk-name">${name}</div><div class="spk-role">Late join · Voice pending</div></div>
+    <div class="spk-indicator"></div>`;
+  list.insertBefore(card, list.lastElementChild);
+}
+
+async function analyzeMeeting() {
+  const txt = mFinalTxt.trim() || 'Sample meeting discussion about product strategy and team alignment.';
+  const out = document.getElementById('mOutBody');
+  const badge = document.getElementById('mBadge');
+  setThinking(out, badge, 'Processing...');
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:1000,
+        messages:[{role:'user',content:`You are a meeting intelligence system. Extract from this meeting transcript:
+- Key decisions made
+- Action items (who does what)  
+- Follow-ups needed
+- One-sentence meeting summary
+
+Format as clear bullet points under each heading. Be concise and professional.
+
+Transcript: "${txt}"`}]
+      })
+    });
+    const data = await res.json();
+    const result = data?.content?.[0]?.text||'Meeting analysis complete.';
+    out.textContent = result;
+    out.classList.add('has');
+    badge.textContent='Done ✓';
+    badge.style.cssText='color:var(--sage);background:var(--sage-a);border-color:rgba(122,158,142,.22)';
+    insightStore.unshift({type:'meeting',time:new Date().toLocaleDateString(),summary:result});
+    sessions++; updateDashStats(); renderDashInsights();
+  } catch(e){
+    out.textContent='Error analyzing meeting.';
+    badge.textContent='Error'; badge.style.cssText='color:var(--rose);background:var(--rose-a)';
+  }
+}
+
+/* ════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════ */
+function setFilter(el, f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderDashInsights();
+}
+function filterInsights() { renderDashInsights(); }
+
+function renderDashInsights() {
+  const container = document.getElementById('insightEntries');
+  const query = document.getElementById('searchInp').value.toLowerCase();
+  const empty = document.getElementById('dashEmpty');
+  let items = insightStore.filter(i=>{
+    const matchFilter = currentFilter==='all' || i.type===currentFilter ||
+      (currentFilter==='ideas'&&i.ideas?.length) ||
+      (currentFilter==='tasks'&&i.tasks?.length) ||
+      (currentFilter==='decisions'&&i.decisions?.length);
+    const matchSearch = !query || JSON.stringify(i).toLowerCase().includes(query);
+    return matchFilter && matchSearch;
+  });
+  // clear old entries
+  container.querySelectorAll('.insight-entry').forEach(e=>e.remove());
+  if(!items.length){
+    if(empty) empty.style.display='flex';
+    return;
+  }
+  if(empty) empty.style.display='none';
+  items.forEach(item=>{
+    const div = document.createElement('div');
+    div.className = 'insight-entry';
+    const typeColor = item.type==='meeting' ? 'var(--sage)' : 'var(--gold)';
+    const typeBg = item.type==='meeting' ? 'var(--sage-a)' : 'var(--gold-a)';
+    div.innerHTML=`
+      <div class="ie-meta">
+        <div class="ie-type" style="background:${typeBg};color:${typeColor};border:1px solid ${typeBg}">${item.type==='meeting'?'👥 Meeting':'🧠 Personal'}</div>
+        <div class="ie-date">${item.time}</div>
+      </div>
+      <div class="ie-text">${item.summary||'No summary available'}</div>
+      ${item.tasks?.length?`<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:5px">${item.tasks.slice(0,2).map(t=>`<div style="font-family:var(--grotesk);font-size:10px;padding:3px 9px;border-radius:var(--pill);background:var(--sage-a);color:var(--sage);border:1px solid rgba(122,158,142,.2)">✅ ${t.slice(0,40)}${t.length>40?'…':''}</div>`).join('')}</div>`:''}`;
+    container.insertBefore(div, container.firstChild);
+  });
+  // Update daily summary
+  if(insightStore.length) {
+    document.getElementById('ds-daily').textContent = insightStore[0].summary||'No summary yet.';
+  }
+}
+
+function updateDashStats() {
+  document.getElementById('ds-ses').textContent = sessions;
+  document.getElementById('ds-ins').textContent = totalInsights;
+  document.getElementById('ds-tasks').textContent = totalTasks;
+  document.getElementById('ds-words').textContent = totalWords;
+}
+
+function updateGlobalWords(txt) {
+  totalWords = txt ? txt.split(/\s+/).filter(w=>w.length>0).length : 0;
+  updateDashStats();
+}
+
+/* ════════════════════════════════════════
+   ACTION APPROVAL
+════════════════════════════════════════ */
+function approveCard(id) {
+  const card = document.getElementById(id);
+  if(!card) return;
+  card.style.transition='all .4s var(--ease)';
+  card.style.opacity='0';
+  card.style.transform='translateX(20px)';
+  setTimeout(()=>card.remove(), 400);
+}
+function dismissCard(id) {
+  const card = document.getElementById(id);
+  if(!card) return;
+  card.style.transition='all .35s var(--ease)';
+  card.style.opacity='0';
+  card.style.transform='scale(.96)';
+  setTimeout(()=>card.remove(), 350);
+}
+function updatePendingApprovals() {
+  if(pendingList.length) {
+    document.getElementById('pendingActions').innerHTML = pendingList.map(p=>
+      `<div class="h-item" style="border-left-color:var(--sage)">✅ ${p.txt}</div>`
+    ).join('');
+  }
+}
+
+/* ════════════════════════════════════════
+   SHARED HELPERS
+════════════════════════════════════════ */
+function setThinking(out, badge, msg) {
+  out.classList.remove('has');
+  badge.textContent = msg;
+  badge.style.cssText='color:var(--gold);background:var(--gold-a);border-color:rgba(212,175,80,.22)';
+  out.innerHTML=`<div class="think-row"><div class="td"></div><div class="td"></div><div class="td"></div><span class="think-t">Processing intelligence...</span></div>`;
+}
+
+function copyTx(id) {
+  const v = document.getElementById(id)?.value?.trim();
+  if(!v) return;
+  navigator.clipboard.writeText(v).then(()=>{
+    const origContent = event.currentTarget.innerHTML;
+    event.currentTarget.innerHTML='✓ Copied!';
+    setTimeout(()=>{ event.currentTarget.innerHTML = origContent; }, 1800);
+  });
+}
+function clearTx(id, prefix) {
+  if(prefix==='p'){ pFinalTxt=''; }
+  if(prefix==='m'){ mFinalTxt=''; }
+  const el = document.getElementById(id);
+  if(el){ el.value=''; el.classList.remove('has','live'); }
+  updateGlobalWords('');
+}
+
+function addHistory(listId, emptyId, txt) {
+  const list = document.getElementById(listId);
+  const empty = document.getElementById(emptyId);
+  if(empty) empty.remove();
+  const item = document.createElement('div');
+  item.className='h-item';
+  item.textContent = txt.length>90?txt.slice(0,90)+'…':txt;
+  list.prepend(item);
+}
+function clearHistory(listId) {
+  if(!confirm('Clear all session memory?')) return;
+  document.getElementById(listId).innerHTML=`<div class="empty-state" id="pHistEmpty"><div class="es-icon">◻</div>No sessions yet</div>`;
+}
+
+/* init: render empty dash */
+renderDashInsights();
 </script>
-
 </body>
 </html>
