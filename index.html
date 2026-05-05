@@ -1352,19 +1352,38 @@ function startPersonal() {
   try {
     pRec = new (window.SpeechRecognition||window.webkitSpeechRecognition)();
     pRec.lang = lang; pRec.continuous = true; pRec.interimResults = true;
+
+    // THE FIX: track confirmed final text separately, never re-append
+    // pFinalTxt = only truly finalized words, built incrementally
+    // interim = current in-progress word chunk shown live but NOT added to pFinalTxt yet
     pRec.onresult = e => {
-      let interim='';
-      for(let i=e.resultIndex;i<e.results.length;i++){
-        if(e.results[i].isFinal) pFinalTxt += e.results[i][0].transcript+' ';
-        else interim = e.results[i][0].transcript;
+      let interim = '';
+      // Only loop from resultIndex — never re-process old results
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) {
+          pFinalTxt += e.results[i][0].transcript + ' ';
+        } else {
+          interim = e.results[i][0].transcript;
+        }
       }
       const box = document.getElementById('pTxBox');
-      const d = (pFinalTxt+interim).trim();
-      box.value = d;
-      box.classList.toggle('has', d.length>0);
-      updateGlobalWords(d);
+      // Show finalized text + live interim preview (interim is NOT saved yet)
+      const display = (pFinalTxt + interim).trim();
+      box.value = display;
+      box.classList.toggle('has', display.length > 0);
+      updateGlobalWords(display);
     };
-    pRec.onend = ()=>{ if(pIsRec){try{pRec.start()}catch(e){}} };
+
+    // On restart after silence: do NOT call pRec.start() again on same instance
+    // Create a brand new instance so result indices reset cleanly
+    pRec.onend = () => {
+      if (!pIsRec) return;
+      // Brief delay then create fresh instance to avoid result index overlap
+      setTimeout(() => {
+        if (!pIsRec) return;
+        try { startPersonalInstance(); } catch(e) {}
+      }, 150);
+    };
     pRec.onerror = e=>{ if(e.error==='not-allowed'){alert('Allow microphone access.');stopPersonal();} };
     pRec.start(); pIsRec = true;
     document.getElementById('pMicBtn').classList.add('rec');
@@ -1375,6 +1394,31 @@ function startPersonal() {
     document.getElementById('pTxBox').classList.add('live');
   } catch(e){ alert('Speech recognition requires Google Chrome.'); }
 }
+function startPersonalInstance() {
+  // Spawn fresh recognition instance — clean result index from 0
+  const lang = document.getElementById('langSel').value;
+  pRec = new (window.SpeechRecognition||window.webkitSpeechRecognition)();
+  pRec.lang = lang; pRec.continuous = true; pRec.interimResults = true;
+  pRec.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) pFinalTxt += e.results[i][0].transcript + ' ';
+      else interim = e.results[i][0].transcript;
+    }
+    const box = document.getElementById('pTxBox');
+    const display = (pFinalTxt + interim).trim();
+    box.value = display;
+    box.classList.toggle('has', display.length > 0);
+    updateGlobalWords(display);
+  };
+  pRec.onend = () => {
+    if (!pIsRec) return;
+    setTimeout(() => { if (pIsRec) try { startPersonalInstance(); } catch(e){} }, 150);
+  };
+  pRec.onerror = e=>{ if(e.error==='not-allowed'){alert('Allow microphone access.');stopPersonal();} };
+  try { pRec.start(); } catch(e){}
+}
+
 function stopPersonal() {
   pIsRec = false;
   if(pRec){try{pRec.stop()}catch(e){}}
@@ -1467,17 +1511,8 @@ function toggleMeeting() {
 function startMeeting() {
   const lang = document.getElementById('langSel').value;
   try {
-    mRec = new (window.SpeechRecognition||window.webkitSpeechRecognition)();
-    mRec.lang = lang; mRec.continuous = true; mRec.interimResults = true;
-    mRec.onresult = e => {
-      let newTxt = '';
-      for(let i=e.resultIndex;i<e.results.length;i++){
-        if(e.results[i].isFinal){ newTxt += e.results[i][0].transcript; mFinalTxt+=e.results[i][0].transcript+' '; }
-      }
-      if(newTxt.trim()){ addMeetingFeedMessage(newTxt.trim()); }
-    };
-    mRec.onend = ()=>{ if(mIsRec){try{mRec.start()}catch(e){}} };
-    mRec.start(); mIsRec = true;
+    mIsRec = true;
+    startMeetingInstance(lang);
     document.getElementById('mMicBtn').classList.add('rec');
     document.getElementById('mMicBtn').textContent = '⏹';
     document.getElementById('mWave').classList.remove('off');
@@ -1491,6 +1526,30 @@ function startMeeting() {
     simulateSpeakers();
   } catch(e){ alert('Speech recognition requires Google Chrome.'); }
 }
+function startMeetingInstance(lang) {
+  mRec = new (window.SpeechRecognition||window.webkitSpeechRecognition)();
+  mRec.lang = lang || document.getElementById('langSel').value;
+  mRec.continuous = true; mRec.interimResults = true;
+  mRec.onresult = e => {
+    // Only process new final results — never re-read old ones
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) {
+        const chunk = e.results[i][0].transcript.trim();
+        if (chunk) {
+          mFinalTxt += chunk + ' ';
+          addMeetingFeedMessage(chunk);
+        }
+      }
+    }
+  };
+  mRec.onend = () => {
+    if (!mIsRec) return;
+    setTimeout(() => { if (mIsRec) try { startMeetingInstance(); } catch(e){} }, 150);
+  };
+  mRec.onerror = e=>{ if(e.error==='not-allowed'){alert('Allow microphone access.');stopMeeting();} };
+  try { mRec.start(); } catch(e){}
+}
+
 function stopMeeting() {
   mIsRec = false;
   if(mRec){try{mRec.stop()}catch(e){}}
