@@ -1253,18 +1253,23 @@ function homeOrbToggle() {
     document.getElementById('homeOrb').classList.add('rec');
     document.getElementById('homeOrb').textContent = '⏹';
     document.getElementById('homeWave').classList.remove('off');
-    try {
-      homeRec = new (window.SpeechRecognition||window.webkitSpeechRecognition)();
-      homeRec.continuous = true; homeRec.interimResults = false;
-      homeRec.start();
-      homeRec.onend = ()=>{ if(homeRecOn){ try{homeRec.start()}catch(e){} } };
-    } catch(e){}
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) return;
+    function spawnHome() {
+      if (!homeRecOn) return;
+      homeRec = new SpeechRec();
+      homeRec.continuous = false; homeRec.interimResults = false;
+      homeRec.onend = () => { if (homeRecOn) setTimeout(spawnHome, 80); };
+      homeRec.onerror = () => {};
+      try { homeRec.start(); } catch(e) {}
+    }
+    spawnHome();
   } else {
     homeRecOn = false;
     document.getElementById('homeOrb').classList.remove('rec');
     document.getElementById('homeOrb').textContent = '🎙';
     document.getElementById('homeWave').classList.add('off');
-    if(homeRec){try{homeRec.stop()}catch(e){}}
+    if (homeRec) { try { homeRec.abort(); } catch(e){} homeRec = null; }
   }
 }
 
@@ -1343,85 +1348,65 @@ function updateEnrollProgress() {
 
 /* ════════════════════════════════════════
    PERSONAL SESSION
+   FIX: interimResults:false → only truly
+   final transcripts arrive → zero duplicates
 ════════════════════════════════════════ */
 function togglePersonal() {
   pIsRec ? stopPersonal() : startPersonal();
 }
+
 function startPersonal() {
-  const lang = document.getElementById('langSel').value;
-  try {
-    pRec = new (window.SpeechRecognition||window.webkitSpeechRecognition)();
-    pRec.lang = lang; pRec.continuous = true; pRec.interimResults = true;
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) { alert('Speech recognition requires Google Chrome.'); return; }
 
-    // THE FIX: track confirmed final text separately, never re-append
-    // pFinalTxt = only truly finalized words, built incrementally
-    // interim = current in-progress word chunk shown live but NOT added to pFinalTxt yet
-    pRec.onresult = e => {
-      let interim = '';
-      // Only loop from resultIndex — never re-process old results
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (e.results[i].isFinal) {
-          pFinalTxt += e.results[i][0].transcript + ' ';
-        } else {
-          interim = e.results[i][0].transcript;
-        }
-      }
-      const box = document.getElementById('pTxBox');
-      // Show finalized text + live interim preview (interim is NOT saved yet)
-      const display = (pFinalTxt + interim).trim();
-      box.value = display;
-      box.classList.toggle('has', display.length > 0);
-      updateGlobalWords(display);
-    };
+  pFinalTxt = '';                        // reset on every new session
+  pIsRec    = true;
 
-    // On restart after silence: do NOT call pRec.start() again on same instance
-    // Create a brand new instance so result indices reset cleanly
-    pRec.onend = () => {
-      if (!pIsRec) return;
-      // Brief delay then create fresh instance to avoid result index overlap
-      setTimeout(() => {
-        if (!pIsRec) return;
-        try { startPersonalInstance(); } catch(e) {}
-      }, 150);
-    };
-    pRec.onerror = e=>{ if(e.error==='not-allowed'){alert('Allow microphone access.');stopPersonal();} };
-    pRec.start(); pIsRec = true;
-    document.getElementById('pMicBtn').classList.add('rec');
-    document.getElementById('pMicBtn').textContent = '⏹';
-    document.getElementById('pWave').classList.remove('off');
-    document.getElementById('pRecPill').classList.add('on');
-    document.getElementById('pMicState').textContent = 'Recording — tap to stop';
-    document.getElementById('pTxBox').classList.add('live');
-  } catch(e){ alert('Speech recognition requires Google Chrome.'); }
-}
-function startPersonalInstance() {
-  // Spawn fresh recognition instance — clean result index from 0
-  const lang = document.getElementById('langSel').value;
-  pRec = new (window.SpeechRecognition||window.webkitSpeechRecognition)();
-  pRec.lang = lang; pRec.continuous = true; pRec.interimResults = true;
-  pRec.onresult = e => {
-    let interim = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) pFinalTxt += e.results[i][0].transcript + ' ';
-      else interim = e.results[i][0].transcript;
-    }
-    const box = document.getElementById('pTxBox');
-    const display = (pFinalTxt + interim).trim();
-    box.value = display;
-    box.classList.toggle('has', display.length > 0);
-    updateGlobalWords(display);
-  };
-  pRec.onend = () => {
+  function spawnRec() {
     if (!pIsRec) return;
-    setTimeout(() => { if (pIsRec) try { startPersonalInstance(); } catch(e){} }, 150);
-  };
-  pRec.onerror = e=>{ if(e.error==='not-allowed'){alert('Allow microphone access.');stopPersonal();} };
-  try { pRec.start(); } catch(e){}
+    pRec = new SpeechRec();
+    pRec.lang            = document.getElementById('langSel').value;
+    pRec.continuous      = false;        // one utterance at a time → cleanest
+    pRec.interimResults  = false;        // NO interim → NO duplicates, ever
+
+    pRec.onresult = (e) => {
+      // e.results[0][0].transcript is the one confirmed final chunk
+      const chunk = e.results[0][0].transcript.trim();
+      if (!chunk) return;
+      pFinalTxt += chunk + ' ';
+      const box = document.getElementById('pTxBox');
+      box.value = pFinalTxt.trim();
+      box.classList.add('has');
+      updateGlobalWords(pFinalTxt.trim());
+    };
+
+    pRec.onerror = (e) => {
+      if (e.error === 'not-allowed') {
+        alert('Microphone access denied. Allow it in browser settings.');
+        stopPersonal();
+      }
+      // 'no-speech' / 'aborted' → just respawn silently
+    };
+
+    // When this utterance ends, spawn a fresh instance immediately
+    pRec.onend = () => { if (pIsRec) setTimeout(spawnRec, 80); };
+
+    try { pRec.start(); } catch(err) {}
+  }
+
+  spawnRec();
+
+  document.getElementById('pMicBtn').classList.add('rec');
+  document.getElementById('pMicBtn').textContent = '⏹';
+  document.getElementById('pWave').classList.remove('off');
+  document.getElementById('pRecPill').classList.add('on');
+  document.getElementById('pMicState').textContent = 'Recording — tap to stop';
+  document.getElementById('pTxBox').classList.add('live');
 }
 
 function stopPersonal() {
   pIsRec = false;
-  if(pRec){try{pRec.stop()}catch(e){}}
+  if (pRec) { try { pRec.abort(); } catch(e){} pRec = null; }
   document.getElementById('pMicBtn').classList.remove('rec');
   document.getElementById('pMicBtn').textContent = '🎙';
   document.getElementById('pWave').classList.add('off');
@@ -1429,7 +1414,7 @@ function stopPersonal() {
   document.getElementById('pMicState').textContent = 'Tap to begin session';
   document.getElementById('pTxBox').classList.remove('live');
   const txt = pFinalTxt.trim();
-  if(txt){ sessions++; addHistory('pHistory','pHistEmpty',txt); updateDashStats(); }
+  if (txt) { sessions++; addHistory('pHistory','pHistEmpty', txt); updateDashStats(); }
 }
 
 async function analyzePersonal() {
@@ -1508,11 +1493,44 @@ let lastSpk = -1;
 function toggleMeeting() {
   mIsRec ? stopMeeting() : startMeeting();
 }
+/* ════════════════════════════════════════
+   MEETING SESSION
+   Same fix: continuous:false, interimResults:false
+════════════════════════════════════════ */
+function toggleMeeting() {
+  mIsRec ? stopMeeting() : startMeeting();
+}
+
 function startMeeting() {
-  const lang = document.getElementById('langSel').value;
-  try {
-    mIsRec = true;
-    startMeetingInstance(lang);
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) { alert('Speech recognition requires Google Chrome.'); return; }
+
+  mFinalTxt = '';
+  mIsRec    = true;
+
+  function spawnMRec() {
+    if (!mIsRec) return;
+    mRec = new SpeechRec();
+    mRec.lang           = document.getElementById('langSel').value;
+    mRec.continuous     = false;
+    mRec.interimResults = false;
+
+    mRec.onresult = (e) => {
+      const chunk = e.results[0][0].transcript.trim();
+      if (!chunk) return;
+      mFinalTxt += chunk + ' ';
+      addMeetingFeedMessage(chunk);
+    };
+
+    mRec.onerror = (e) => {
+      if (e.error === 'not-allowed') { alert('Microphone access denied.'); stopMeeting(); }
+    };
+
+    mRec.onend = () => { if (mIsRec) setTimeout(spawnMRec, 80); };
+    try { mRec.start(); } catch(err) {}
+  }
+
+  spawnMRec();
     document.getElementById('mMicBtn').classList.add('rec');
     document.getElementById('mMicBtn').textContent = '⏹';
     document.getElementById('mWave').classList.remove('off');
@@ -1526,30 +1544,6 @@ function startMeeting() {
     simulateSpeakers();
   } catch(e){ alert('Speech recognition requires Google Chrome.'); }
 }
-function startMeetingInstance(lang) {
-  mRec = new (window.SpeechRecognition||window.webkitSpeechRecognition)();
-  mRec.lang = lang || document.getElementById('langSel').value;
-  mRec.continuous = true; mRec.interimResults = true;
-  mRec.onresult = e => {
-    // Only process new final results — never re-read old ones
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) {
-        const chunk = e.results[i][0].transcript.trim();
-        if (chunk) {
-          mFinalTxt += chunk + ' ';
-          addMeetingFeedMessage(chunk);
-        }
-      }
-    }
-  };
-  mRec.onend = () => {
-    if (!mIsRec) return;
-    setTimeout(() => { if (mIsRec) try { startMeetingInstance(); } catch(e){} }, 150);
-  };
-  mRec.onerror = e=>{ if(e.error==='not-allowed'){alert('Allow microphone access.');stopMeeting();} };
-  try { mRec.start(); } catch(e){}
-}
-
 function stopMeeting() {
   mIsRec = false;
   if(mRec){try{mRec.stop()}catch(e){}}
